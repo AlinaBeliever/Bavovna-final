@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /_source/
+Sitemap: https://ДОМЕН/sitemap.xml
