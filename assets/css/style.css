@@ -452,6 +452,8 @@ h1, h2, h3, p, figure, dl, dd { margin: 0; }
   .slot:not(.on) .slot__name, .slot.on .slot__name { writing-mode: horizontal-tb; transform: none; font-size: clamp(1.75rem, 7.4vw, 2.4rem); margin-top: 0; }
   .slot__body, .slot.on .slot__body, .slot:not(.on) .slot__body { max-height: none; opacity: 1; visibility: visible; }
   .slot__btn { cursor: default; }
+  /* «Найближчий шефський стіл: …» — в один рядок на телефоні */
+  .slot__next { font-size: clamp(9.5px, 3vw, 12.5px); letter-spacing: .04em; white-space: nowrap; }
   .pillars__duo { grid-template-columns: 1fr; margin-top: 48px; }
   .pillar--farm { max-width: 320px; margin-left: 0; margin-top: 0; }
   .pillar--farm h3, .pillar--farm p { width: auto; }
