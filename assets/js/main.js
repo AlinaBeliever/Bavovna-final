@@ -128,12 +128,12 @@
     $$('video[data-lazyplay]').forEach(function (v) { if (!reduce) vio.observe(v); else { v.removeAttribute('autoplay'); v.pause(); } });
     /* hero і відео нагороди граємо безперервно, без пауз поза вʼюпортом */
     var always = $$('video[data-always]');
-    if (reduce) { always.forEach(function (v) { v.pause(); }); }
-    else {
+    {
       var kick = function () { always.forEach(function (v) { if (v.paused) { var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); } }); };
       always.forEach(function (v) { v.muted = true; v.addEventListener('loadeddata', kick); v.addEventListener('canplay', kick); });
       kick();
-      ['touchstart', 'click', 'scroll', 'keydown'].forEach(function (ev) { window.addEventListener(ev, kick, { passive: true, once: true }); });
+      if (window.IntersectionObserver) { var aio = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) kick(); }); }, { threshold: .1 }); always.forEach(function (v) { aio.observe(v); }); }
+      ['touchstart', 'touchend', 'click', 'scroll', 'keydown'].forEach(function (ev) { window.addEventListener(ev, kick, { passive: true, once: true }); });
       d.addEventListener('visibilitychange', function () { if (!d.hidden) kick(); });
       /* страхівка від зупинки циклу: якщо відео застигло або завершилось — перезапуск */
       always.forEach(function (v) {

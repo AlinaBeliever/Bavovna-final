@@ -413,7 +413,9 @@ h1, h2, h3, p, figure, dl, dd { margin: 0; }
 @media (max-width: 860px) {
   :root { --hh: 64px; }
   .hero__stick { min-height: 560px; }
-  .hero__end { top: calc(var(--hh) + 40px); }
+  .hero__end { top: calc(var(--hh) + 90px); }
+  .hero__end .h-xl { font-size: clamp(1.25rem, 5.4vw, 1.7rem); max-width: none; }
+  .hero__end .h-xl br { display: inline; }
   .hero__kw { font-size: 1rem; }
   .hero__media video, .hero__media img { object-position: 70% 50%; }
   .hero__media::after { background: linear-gradient(0deg, var(--night) 0%, rgba(10,26,21,.95) 6%, rgba(10,26,21,.55) 45%, rgba(10,26,21,.25) 100%); }
