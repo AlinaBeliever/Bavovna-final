@@ -177,7 +177,7 @@
 
   /* ---------- іскри над hero ---------- */
   (function () {
-    var cv = $('#heroSparks'); if (!cv || reduce || !cv.getContext || !hero) return;
+    var cv = $('#heroSparks'); if (!cv || reduce || phoneHero || !cv.getContext || !hero) return; /* на телефоні іскор немає */
     var cx = cv.getContext('2d'), W = 0, H = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
     var N = phoneHero ? 34 : 65, ps = [], on = true, last = 0, raf = 0;
     /* зона вогню в координатах кадру (0..1), далі перераховуємо під object-fit: cover */
