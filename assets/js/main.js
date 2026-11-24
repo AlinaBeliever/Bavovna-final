@@ -179,23 +179,32 @@
   (function () {
     var cv = $('#heroSparks'); if (!cv || reduce || !cv.getContext || !hero) return;
     var cx = cv.getContext('2d'), W = 0, H = 0, dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    var N = phoneHero ? 40 : 85, ps = [], on = true, last = 0, raf = 0;
-    var size = function () { W = cv.clientWidth; H = cv.clientHeight; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cx.setTransform(dpr, 0, 0, dpr, 0, 0); };
-    /* народжуються здебільшого над вогнем (права нижня частина кадру) і летять угору */
+    var N = phoneHero ? 16 : 26, ps = [], on = true, last = 0, raf = 0;
+    /* зона вогню в координатах кадру (0..1), далі перераховуємо під object-fit: cover */
+    var FZ = phoneHero ? { u0: .5, u1: .98, v0: .5, v1: .9 } : { u0: .57, u1: .88, v0: .45, v1: .85 };
+    var RW = 0, RH = 0, OX = 0, OY = 0;
+    var size = function () {
+      W = cv.clientWidth; H = cv.clientHeight; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var a = phoneHero ? 1080 / 1440 : 2560 / 1440, px = matchMedia('(max-width: 860px)').matches ? .7 : .62;
+      if (W / H > a) { RW = W; RH = W / a; } else { RH = H; RW = H * a; }
+      OX = (W - RW) * px; OY = (H - RH) * .5;
+    };
+    /* народжуються тільки над грилем і летять угору */
     var spawn = function (p, fresh) {
-      var fire = Math.random() < .75;
-      p.x = fire ? W * (.5 + Math.random() * .5) : Math.random() * W;
-      p.y = fresh ? Math.random() * H : H * (.55 + Math.random() * .5);
-      p.vy = -(18 + Math.random() * 46); p.vx = (Math.random() - .5) * 14;
-      p.r = .6 + Math.random() * 1.5; p.life = 0; p.max = 2.5 + Math.random() * 4; p.ph = Math.random() * 6.3; p.hot = Math.random() < .35;
+      p.x = OX + RW * (FZ.u0 + Math.random() * (FZ.u1 - FZ.u0));
+      p.y = OY + RH * (FZ.v0 + Math.random() * (FZ.v1 - FZ.v0));
+      p.vy = -(20 + Math.random() * 40); p.vx = (Math.random() - .5) * 8;
+      p.r = .6 + Math.random() * 1.4; p.life = fresh ? Math.random() * 2 : 0; p.max = 1.8 + Math.random() * 2.4; p.ph = Math.random() * 6.3; p.hot = Math.random() < .35;
       return p;
     };
     var frame = function (now) {
       raf = 0; if (!on || d.hidden) return;
+      /* при скролі плавно гаснуть і до тарілок зникають зовсім */
+      var fade = Math.max(0, 1 - shown / .3); fade *= fade;
+      if (fade <= 0) { cx.clearRect(0, 0, W, H); if (shown !== target) raf = requestAnimationFrame(frame); return; }
       var dt = Math.min(.05, last ? (now - last) / 1000 : .016); last = now;
       cx.clearRect(0, 0, W, H);
       cx.globalCompositeOperation = 'lighter';
-      var fade = 1 - shown * .45;
       for (var i = 0; i < ps.length; i++) {
         var p = ps[i]; p.life += dt;
         p.x += (p.vx + Math.sin(now / 700 + p.ph) * 10) * dt; p.y += p.vy * dt;
@@ -214,6 +223,7 @@
     var start = function () { if (!raf && on && !d.hidden) { last = 0; raf = requestAnimationFrame(frame); } };
     size(); for (var i = 0; i < N; i++) ps.push(spawn({}, true));
     window.addEventListener('resize', size);
+    window.addEventListener('scroll', start, { passive: true });
     d.addEventListener('visibilitychange', start);
     if (window.IntersectionObserver) new IntersectionObserver(function (es) { on = es[0].isIntersecting; if (on) start(); }, { threshold: 0 }).observe(hero);
     start();
