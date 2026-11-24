@@ -163,6 +163,8 @@ h1, h2, h3, p, figure, dl, dd { margin: 0; }
 .hero__stick { position: sticky; top: 0; height: 100svh; min-height: 640px; display: flex; align-items: stretch; overflow: hidden; isolation: isolate; }
 .hero__media { position: absolute; inset: 0; z-index: -2; background: var(--night) url(../img/hero-poster.jpg) 62% 50% / cover no-repeat; }
 .hero__media video, .hero__media img { width: 100%; height: 100%; object-fit: cover; object-position: 62% 50%; }
+#heroVid { opacity: 0; transition: opacity .35s ease; }
+#heroVid.is-on { opacity: 1; }
 .hero__media::after {
   content: ''; position: absolute; inset: 0;
   background:

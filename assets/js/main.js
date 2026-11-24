@@ -107,6 +107,18 @@
     if (!heroVid || reduce || heroVid.dataset.ready) return;
     heroVid.dataset.ready = '1';
     var url = ROOT + 'assets/video/' + (phoneHero ? 'hero-scrub-m.mp4?v=1' : 'hero-scrub.mp4?v=2');
+    /* відео прозоре, доки не намальовано справжній кадр: iOS до першого кадру малює чорний прямокутник поверх постера */
+    var shownOnce = false;
+    var reveal = function () {
+      if (shownOnce) return; shownOnce = true;
+      var on = function () { heroVid.classList.add('is-on'); heroVid.dispatchEvent(new Event('heroready')); };
+      if (heroVid.requestVideoFrameCallback) { heroVid.requestVideoFrameCallback(on); setTimeout(on, 600); } else on();
+    };
+    heroVid.addEventListener('seeked', reveal);
+    heroVid.addEventListener('playing', reveal);
+    heroVid.addEventListener('error', function () { heroVid.dispatchEvent(new Event('heroready')); });
+    /* перемотування змушує Safari декодувати кадр навіть без play() (режим енергозбереження блокує play) */
+    heroVid.addEventListener('loadedmetadata', function () { if (!heroVid.currentTime) try { heroVid.currentTime = 0.01; } catch (e) {} });
     var attach = function (srcUrl) {
       heroVid.preload = 'auto'; heroVid.src = srcUrl; heroVid.load();
       /* iOS не декодує кадри без play(): беззвучно запускаємо й одразу ставимо на паузу */
@@ -629,7 +641,7 @@
     var qi = 0;
     var nextVid = function () {
       if (qi >= queue.length) { vidsOk = true; finish(); return; }
-      var v = queue[qi++], over = false, evs = ['canplay', 'canplaythrough', 'error'];
+      var v = queue[qi++], over = false, evs = v === heroVid ? ['heroready'] : ['canplay', 'canplaythrough', 'error'];
       /* лоадер тримаємо лише до готовності hero; решта відео догружається у фоні */
       var next = function () { if (over) return; over = true; evs.forEach(function (ev) { v.removeEventListener(ev, next); }); if (v === heroVid) { vidsOk = true; finish(); } nextVid(); };
       if (v.readyState >= 3) { next(); return; }
