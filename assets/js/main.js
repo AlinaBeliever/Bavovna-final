@@ -91,7 +91,7 @@
   /* ---------- розріз ---------- */
   var heroVid = $('#heroVid'), heroIn = $('.hero__in'), heroMedia = $('.hero__media'), heroEnd = $('#heroEnd');
   var target = 0, shown = 0;
-  /* розріз лише на десктопі: на мобільному лишається статичне фото (poster) і кнопки */
+  /* розріз працює на всіх пристроях (десктоп і мобільні) */
   var desk = { matches: true };
   function initHeroVideo() {
     if (!heroVid || !desk.matches || reduce || heroVid.dataset.ready) return;
@@ -572,18 +572,40 @@
     toTop();
     try { sessionStorage.setItem('bv-seen', '1'); } catch (e) {}
     /* не чекаємо всіх картинок/відео: лише саме лого + DOM + коротка іскра лого */
-    var mk = $('.loader__mark', ld), started = false;
-    var start = function () {
-      if (started) return; started = true;
+    /* чекаємо відео по черзі: спершу герой, далі решта сайту зверху вниз; лоадер триває не довше 2.5 с від старту сторінки */
+    var CAP = 2500, mk = $('.loader__mark', ld), logoOk = false, vidsOk = false, t0 = Date.now();
+    var nowMs = function () { return (window.performance && performance.now) ? performance.now() : 0; };
+    var finish = function () {
+      if (!logoOk || !vidsOk || fin) return;
       ld.classList.add('is-ready');
-      var t0 = Date.now();
-      var go = function () { setTimeout(done, Math.max(0, 900 - (Date.now() - t0))); };
-      if (d.readyState !== 'loading') go(); else d.addEventListener('DOMContentLoaded', go);
+      setTimeout(done, Math.max(0, 900 - (Date.now() - t0)));
     };
-    if (!mk || (mk.complete && mk.naturalWidth)) start();
-    else { mk.addEventListener('load', start); mk.addEventListener('error', start); }
-    setTimeout(start, 2500);
-    setTimeout(done, 4000);
+    var onLogo = function () { if (logoOk) return; logoOk = true; finish(); };
+    if (!mk || (mk.complete && mk.naturalWidth)) onLogo();
+    else { mk.addEventListener('load', onLogo); mk.addEventListener('error', onLogo); }
+    var queue = [];
+    if (heroVid && heroVid.dataset.ready) queue.push(heroVid);
+    var saver = false;
+    try { var cn = navigator.connection || navigator.mozConnection || navigator.webkitConnection; saver = !!(cn && (cn.saveData || /(^|-)2g$/.test(cn.effectiveType || ''))); } catch (e) {}
+    /* герой чекаємо завжди (і на телефоні); решту відео пропускаємо лише при економії трафіку */
+    if (!saver) $$('video').forEach(function (v) { if (v !== heroVid) queue.push(v); });
+    var qi = 0;
+    var nextVid = function () {
+      if (qi >= queue.length) { vidsOk = true; finish(); return; }
+      var v = queue[qi++], over = false, evs = ['canplay', 'canplaythrough', 'error'];
+      var next = function () { if (over) return; over = true; evs.forEach(function (ev) { v.removeEventListener(ev, next); }); nextVid(); };
+      if (v.readyState >= 3) { next(); return; }
+      evs.forEach(function (ev) { v.addEventListener(ev, next); });
+      try {
+        v.preload = 'auto'; if (v.readyState === 0 && v.networkState !== 2) v.load();
+        /* iOS не буферизує без play(): героя на мить запускаємо беззвучно й ставимо на паузу */
+        if (v === heroVid) { v.muted = true; var pp = v.play(); if (pp && pp.then) pp.then(function () { v.pause(); }, function () {}); }
+      } catch (e) {}
+    };
+    if (!queue.length) { vidsOk = true; finish(); } else nextVid();
+    /* жорсткий ліміт 2.5 с: не встигли — все одно впускаємо, відео догружаються у фоні (черга триває) */
+    setTimeout(function () { logoOk = vidsOk = true; finish(); }, Math.max(0, CAP - 900 - nowMs()));
+    setTimeout(done, Math.max(0, CAP - nowMs()));
   })();
   /* звук вогнища: вмикається лише за кліком, стан запам'ятовується */
   (function () {
