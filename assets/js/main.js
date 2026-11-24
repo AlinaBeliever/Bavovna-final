@@ -179,7 +179,7 @@
   (function () {
     var cv = $('#heroSparks'); if (!cv || reduce || !cv.getContext || !hero) return;
     var cx = cv.getContext('2d'), W = 0, H = 0, dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    var N = phoneHero ? 16 : 26, ps = [], on = true, last = 0, raf = 0;
+    var N = phoneHero ? 30 : 55, ps = [], on = true, last = 0, raf = 0;
     /* зона вогню в координатах кадру (0..1), далі перераховуємо під object-fit: cover */
     var FZ = phoneHero ? { u0: .5, u1: .98, v0: .5, v1: .9 } : { u0: .57, u1: .88, v0: .45, v1: .85 };
     var RW = 0, RH = 0, OX = 0, OY = 0;
@@ -194,7 +194,7 @@
       p.x = OX + RW * (FZ.u0 + Math.random() * (FZ.u1 - FZ.u0));
       p.y = OY + RH * (FZ.v0 + Math.random() * (FZ.v1 - FZ.v0));
       p.vy = -(20 + Math.random() * 40); p.vx = (Math.random() - .5) * 8;
-      p.r = .5 + Math.random() * .9; p.life = fresh ? Math.random() * 2 : 0; p.max = 1.8 + Math.random() * 2.4; p.ph = Math.random() * 6.3; p.hot = Math.random() < .35;
+      p.r = .7 + Math.random() * 1.1; p.life = fresh ? Math.random() * 2 : 0; p.max = 1.8 + Math.random() * 2.4; p.ph = Math.random() * 6.3; p.hot = Math.random() < .35;
       return p;
     };
     var frame = function (now) {
