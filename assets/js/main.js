@@ -158,8 +158,21 @@
     if (!heroVid || !heroVid.duration) return;
     shown += (target - shown) * .25;
     if (Math.abs(target - shown) < .002) shown = target;
-    heroVid.currentTime = shown * (heroVid.duration - .05);
+    var tt = shown * (heroVid.duration - .05);
+    /* після повернення в hero браузер міг скинути декодований кадр: мікро-зсув примушує перемалювати кадр, навіть якщо час той самий */
+    if (forceSeek) { forceSeek = false; tt = Math.min(heroVid.duration - .02, tt + .002); }
+    heroVid.currentTime = tt;
     if (shown !== target) requestAnimationFrame(paintHero);
+  }
+  var forceSeek = false;
+  if (hero && heroVid && window.IntersectionObserver) {
+    var heroSeen = true;
+    new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting && !heroSeen) { forceSeek = true; shown = target; requestAnimationFrame(function () { onScroll(); paintHero(); }); }
+        heroSeen = e.isIntersecting;
+      });
+    }, { threshold: 0 }).observe(hero);
   }
   var words = $$('.manifest__txt .w');
   var manifest = $('[data-words]');
