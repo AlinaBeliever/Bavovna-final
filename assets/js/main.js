@@ -106,7 +106,7 @@
   function initHeroPhone() {
     if (!heroVid || reduce || heroVid.dataset.ready) return;
     heroVid.dataset.ready = '1';
-    var url = ROOT + 'assets/video/hero-scrub-m.mp4?v=1';
+    var url = ROOT + 'assets/video/' + (phoneHero ? 'hero-scrub-m.mp4?v=1' : 'hero-scrub.mp4?v=2');
     var attach = function (srcUrl) {
       heroVid.preload = 'auto'; heroVid.src = srcUrl; heroVid.load();
       /* iOS не декодує кадри без play(): беззвучно запускаємо й одразу ставимо на паузу */
@@ -117,15 +117,16 @@
         .then(function (b) { attach(URL.createObjectURL(b)); }, function () { attach(url); });
     } else attach(url);
   }
-  if (phoneHero) {
+  /* і телефон, і ноутбук: відео цілком у памʼять під час лоадера */
+  {
     var heroGo = function () { requestAnimationFrame(function () { requestAnimationFrame(initHeroPhone); }); };
     var waits = [];
-    var pimg = new Image(); waits.push(new Promise(function (res) { pimg.onload = pimg.onerror = res; pimg.src = ROOT + 'assets/img/hero-poster-m.jpg'; }));
+    var pimg = new Image(); waits.push(new Promise(function (res) { pimg.onload = pimg.onerror = res; pimg.src = ROOT + 'assets/img/' + (phoneHero ? 'hero-poster-m.jpg' : 'hero-poster.jpg'); }));
     if (d.fonts && d.fonts.ready) waits.push(d.fonts.ready);
     if (window.Promise) Promise.all(waits).then(heroGo, heroGo); else heroGo();
     setTimeout(initHeroPhone, 2500);
     ['touchstart', 'scroll'].forEach(function (ev) { window.addEventListener(ev, initHeroPhone, { passive: true, once: true }); });
-  } else initHeroVideo();
+  }
   function paintHero() {
     if (!heroVid || !heroVid.duration) return;
     shown += (target - shown) * .25;
@@ -608,7 +609,7 @@
     /* чекаємо відео по черзі: спершу герой, далі решта сайту зверху вниз; лоадер триває не довше 2.5 с від старту сторінки */
     var narrow = window.matchMedia && matchMedia('(max-width: 820px)').matches;
     /* телефон: даємо лоадеру трохи більше часу, щоб відео-розріз встиг завантажитись (на нормальному 4G це ~1 с) */
-    var CAP = narrow ? 4000 : 2500, mk = $('.loader__mark', ld), logoOk = false, vidsOk = false, t0 = Date.now();
+    var CAP = 4000, mk = $('.loader__mark', ld), logoOk = false, vidsOk = false, t0 = Date.now();
     var nowMs = function () { return (window.performance && performance.now) ? performance.now() : 0; };
     var finish = function () {
       if (!logoOk || !vidsOk || fin) return;
@@ -620,7 +621,7 @@
     else { mk.addEventListener('load', onLogo); mk.addEventListener('error', onLogo); }
     var queue = [];
     /* лоадер чекає hero-відео; на телефоні воно стартує трохи пізніше (initHeroPhone), тому чекаємо його подій */
-    if (heroVid && !reduce && (heroVid.dataset.ready || narrow)) queue.push(heroVid);
+    if (heroVid && !reduce) queue.push(heroVid);
     var saver = false;
     try { var cn = navigator.connection || navigator.mozConnection || navigator.webkitConnection; saver = !!(cn && (cn.saveData || /(^|-)2g$/.test(cn.effectiveType || ''))); } catch (e) {}
     /* герой чекаємо завжди (і на телефоні); решту відео пропускаємо лише при економії трафіку */
@@ -629,11 +630,12 @@
     var nextVid = function () {
       if (qi >= queue.length) { vidsOk = true; finish(); return; }
       var v = queue[qi++], over = false, evs = ['canplay', 'canplaythrough', 'error'];
-      var next = function () { if (over) return; over = true; evs.forEach(function (ev) { v.removeEventListener(ev, next); }); nextVid(); };
+      /* лоадер тримаємо лише до готовності hero; решта відео догружається у фоні */
+      var next = function () { if (over) return; over = true; evs.forEach(function (ev) { v.removeEventListener(ev, next); }); if (v === heroVid) { vidsOk = true; finish(); } nextVid(); };
       if (v.readyState >= 3) { next(); return; }
       evs.forEach(function (ev) { v.addEventListener(ev, next); });
       try {
-        if (v === heroVid && narrow) return;
+        if (v === heroVid) return;
         v.preload = 'auto'; if (v.readyState === 0 && v.networkState !== 2) v.load();
         /* iOS не буферизує без play(): героя на мить запускаємо беззвучно й ставимо на паузу */
         if (v === heroVid) { v.muted = true; var pp = v.play(); if (pp && pp.then) pp.then(function () { v.pause(); }, function () {}); }
