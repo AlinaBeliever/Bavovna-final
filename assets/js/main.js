@@ -33,6 +33,48 @@
     requestAnimationFrame(lraf);
   }
 
+
+  /* ---------- заголовки: поява по рядках ---------- */
+  var heads = $$('.h-xl, .h-l, .page-hero h1').filter(function (h) { return !h.closest('.hero__end') && !h.hasAttribute('data-words'); });
+  if (heads.length && !reduce && 'IntersectionObserver' in window) {
+    var splitHead = function (h) {
+      (function walk(node) {
+        Array.prototype.slice.call(node.childNodes).forEach(function (n) {
+          if (n.nodeType === 3) {
+            var frag = d.createDocumentFragment();
+            n.textContent.split(/(\s+)/).forEach(function (t) {
+              if (!t) return;
+              if (/^\s+$/.test(t)) { frag.appendChild(d.createTextNode(' ')); return; }
+              var w = d.createElement('span'); w.className = 'wm';
+              var i = d.createElement('span'); i.className = 'wi'; i.textContent = t;
+              w.appendChild(i); frag.appendChild(w);
+            });
+            node.replaceChild(frag, n);
+          } else if (n.nodeType === 1 && n.tagName !== 'BR') walk(n);
+        });
+      })(h);
+      h.classList.add('lines');
+    };
+    var lineDelays = function (h) {
+      var top = null, line = -1;
+      $$('.wm', h).forEach(function (w) {
+        var t = w.offsetTop;
+        if (top === null || Math.abs(t - top) > 4) { line++; top = t; }
+        w.firstChild.style.transitionDelay = (line * .12) + 's';
+      });
+    };
+    heads.forEach(function (h) { splitHead(h); lineDelays(h); });
+    var lio = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('lines-in'); lio.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: .1 });
+    heads.forEach(function (h) { lio.observe(h); });
+    var lrw = window.innerWidth, lrt;
+    window.addEventListener('resize', function () {
+      if (window.innerWidth === lrw) return; lrw = window.innerWidth;
+      clearTimeout(lrt); lrt = setTimeout(function () { heads.forEach(lineDelays); }, 200);
+    });
+  }
+
   /* ---------- шапка, док, меню ---------- */
   var hdr = $('#hdr'), dock = $('#dock'), hero = $('.hero');
   var burger = $('#burger');
