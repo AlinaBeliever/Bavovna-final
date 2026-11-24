@@ -662,11 +662,6 @@ html.lenis, html.lenis body { height: auto; }
 .reveal { position: relative; }
 .reveal__next { position: relative; z-index: 1; box-shadow: 0 -40px 80px rgba(0,0,0,.45); }
 
-/* тимчасово: прототип, форма неактивна */
-.form__proto { grid-column: 1 / -1; margin: 0; padding: 14px 16px; border: 1px solid var(--ochre); color: var(--cotton); font-size: .95rem; }
-.form__proto a { color: var(--ochre); text-decoration: underline; }
-.form.is-proto > :not(.form__proto) { opacity: .45; pointer-events: none; user-select: none; }
-
 /* заголовки: поява по рядках */
 .js .lines .wm { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .12em; margin-bottom: -.12em; }
 .js .lines .wi { display: inline-block; transform: translateY(110%); transition: transform 1s var(--ease); }

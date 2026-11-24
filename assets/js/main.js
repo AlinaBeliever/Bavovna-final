@@ -517,32 +517,15 @@
     [nameEl, phoneEl].forEach(function (el) { el.addEventListener('input', function () { if (el.getAttribute('aria-invalid')) (el === nameEl ? checkName : checkPhone)(); }); });
 
     form.addEventListener('submit', function (e) {
-      if (form.classList.contains('is-proto')) { e.preventDefault(); return; }
       e.preventDefault();
       var ok = [checkDate(), checkName(), checkPhone()].every(Boolean);
       if (ok && !time.value) { setErr(date, 'На сьогодні вільного часу немає, оберіть іншу дату'); ok = false; }
       if (!ok) { ($('[aria-invalid="true"]', form) || nameEl).focus(); return; }
 
-      var done = $('#formDone'), btn = $('button[type="submit"]', form);
-      var note = $('#f-note').value.trim();
-      var payload = {
-        format: fmt.value, date: date.value, time: time.value, guests: g,
-        name: nameEl.value.trim(), phone: phoneEl.value.trim(), note: note,
-        'bot-field': $('[name="bot-field"]', form).value
-      };
-      btn.disabled = true;
-      var tel = '<a class="link" href="tel:+380988222222">+380 98 822 22 22</a>';
-      function finish(html) { done.innerHTML = html; form.classList.add('is-done'); done.focus(); }
-      fetch('/.netlify/functions/booking', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-        .then(function (r) { if (!r.ok) throw new Error(r.status); })
-        .then(function () {
-          var safe = d.createElement('span'); safe.textContent = payload.name;
-          finish('<h3>Дякуємо, ' + safe.innerHTML + '.</h3><p>Заявку отримано (' + fmt.value + ', ' + date.value + ', ' + time.value + ', гостей: ' + g + '). Ми зателефонуємо, щоб підтвердити час.</p>');
-        })
-        .catch(function () {
-          btn.disabled = false;
-          finish('<h3>Це прототип сайту</h3><p>Форма бронювання поки не підключена. Зателефонуйте нам: ' + tel + ' або напишіть на bavovna.rest@gmail.com.</p>');
-        });
+      var done = $('#formDone');
+      done.innerHTML = '<h3>Це прототип сайту</h3><p>Після створення повноцінного сайту ресторан отримуватиме ці заявки в зручний спосіб)</p>';
+      form.classList.add('is-done');
+      done.focus();
     });
   }
 
