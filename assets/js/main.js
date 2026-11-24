@@ -99,11 +99,32 @@
     var src = d.createElement('source'); var phone = window.matchMedia && matchMedia('(max-width: 820px)').matches; src.src = ROOT + 'assets/video/' + (phone ? 'hero-scrub-720.mp4' : 'hero-scrub.mp4') + '?v=2'; src.type = 'video/mp4';
     heroVid.appendChild(src); heroVid.preload = 'auto'; heroVid.load();
   }
-  /* на телефоні відео-розріз вантажимо лише після load: спершу постер, шрифти й текст першого екрана */
-  if (window.matchMedia && matchMedia('(max-width: 820px)').matches) {
-    var heroLater = function () { setTimeout(initHeroVideo, 3500); };
-    if (d.readyState === 'complete') heroLater(); else window.addEventListener('load', heroLater, { once: true });
-    ['touchstart', 'scroll'].forEach(function (ev) { window.addEventListener(ev, initHeroVideo, { passive: true, once: true }); });
+  /* телефон: вертикальний кроп відео (730 КБ) качаємо цілком у памʼять, поки триває лоадер,
+     щоб розріз при скролі не стрибав. Старт — одразу після першого екрана (постер + шрифти),
+     тож відео не конкурує з ним за канал і не гальмує LCP */
+  var phoneHero = window.matchMedia && matchMedia('(max-width: 820px)').matches;
+  function initHeroPhone() {
+    if (!heroVid || reduce || heroVid.dataset.ready) return;
+    heroVid.dataset.ready = '1';
+    var url = ROOT + 'assets/video/hero-scrub-m.mp4?v=1';
+    var attach = function (srcUrl) {
+      heroVid.preload = 'auto'; heroVid.src = srcUrl; heroVid.load();
+      /* iOS не декодує кадри без play(): беззвучно запускаємо й одразу ставимо на паузу */
+      heroVid.muted = true; var pp = heroVid.play(); if (pp && pp.then) pp.then(function () { heroVid.pause(); }, function () {});
+    };
+    if (window.fetch && window.URL && URL.createObjectURL) {
+      fetch(url).then(function (r) { if (!r.ok) throw 0; return r.blob(); })
+        .then(function (b) { attach(URL.createObjectURL(b)); }, function () { attach(url); });
+    } else attach(url);
+  }
+  if (phoneHero) {
+    var heroGo = function () { requestAnimationFrame(function () { requestAnimationFrame(initHeroPhone); }); };
+    var waits = [];
+    var pimg = new Image(); waits.push(new Promise(function (res) { pimg.onload = pimg.onerror = res; pimg.src = ROOT + 'assets/img/hero-poster-m.jpg'; }));
+    if (d.fonts && d.fonts.ready) waits.push(d.fonts.ready);
+    if (window.Promise) Promise.all(waits).then(heroGo, heroGo); else heroGo();
+    setTimeout(initHeroPhone, 2500);
+    ['touchstart', 'scroll'].forEach(function (ev) { window.addEventListener(ev, initHeroPhone, { passive: true, once: true }); });
   } else initHeroVideo();
   function paintHero() {
     if (!heroVid || !heroVid.duration) return;
@@ -153,6 +174,8 @@
     }
   }
   if (heroVid) heroVid.addEventListener('loadedmetadata', onScroll);
+  /* якщо відео доїхало, коли вже проскролили, — одразу ставимо потрібний кадр без «наздоганяння» */
+  if (heroVid) heroVid.addEventListener('loadedmetadata', function () { shown = target; });
   var tick = false;
   window.addEventListener('scroll', function () { if (!tick) { tick = true; requestAnimationFrame(function () { tick = false; onScroll(); }); } }, { passive: true });
   window.addEventListener('resize', onScroll);
@@ -583,7 +606,9 @@
     try { sessionStorage.setItem('bv-seen', '1'); } catch (e) {}
     /* не чекаємо всіх картинок/відео: лише саме лого + DOM + коротка іскра лого */
     /* чекаємо відео по черзі: спершу герой, далі решта сайту зверху вниз; лоадер триває не довше 2.5 с від старту сторінки */
-    var CAP = 2500, mk = $('.loader__mark', ld), logoOk = false, vidsOk = false, t0 = Date.now();
+    var narrow = window.matchMedia && matchMedia('(max-width: 820px)').matches;
+    /* телефон: даємо лоадеру трохи більше часу, щоб відео-розріз встиг завантажитись (на нормальному 4G це ~1 с) */
+    var CAP = narrow ? 4000 : 2500, mk = $('.loader__mark', ld), logoOk = false, vidsOk = false, t0 = Date.now();
     var nowMs = function () { return (window.performance && performance.now) ? performance.now() : 0; };
     var finish = function () {
       if (!logoOk || !vidsOk || fin) return;
@@ -594,9 +619,8 @@
     if (!mk || (mk.complete && mk.naturalWidth)) onLogo();
     else { mk.addEventListener('load', onLogo); mk.addEventListener('error', onLogo); }
     var queue = [];
-    var narrow = window.matchMedia && matchMedia('(max-width: 820px)').matches;
-    /* на телефоні лоадер не чекає відео: інакше перший екран зʼявляється на кілька секунд пізніше */
-    if (heroVid && heroVid.dataset.ready && !narrow) queue.push(heroVid);
+    /* лоадер чекає hero-відео; на телефоні воно стартує трохи пізніше (initHeroPhone), тому чекаємо його подій */
+    if (heroVid && !reduce && (heroVid.dataset.ready || narrow)) queue.push(heroVid);
     var saver = false;
     try { var cn = navigator.connection || navigator.mozConnection || navigator.webkitConnection; saver = !!(cn && (cn.saveData || /(^|-)2g$/.test(cn.effectiveType || ''))); } catch (e) {}
     /* герой чекаємо завжди (і на телефоні); решту відео пропускаємо лише при економії трафіку */
@@ -609,6 +633,7 @@
       if (v.readyState >= 3) { next(); return; }
       evs.forEach(function (ev) { v.addEventListener(ev, next); });
       try {
+        if (v === heroVid && narrow) return;
         v.preload = 'auto'; if (v.readyState === 0 && v.networkState !== 2) v.load();
         /* iOS не буферизує без play(): героя на мить запускаємо беззвучно й ставимо на паузу */
         if (v === heroVid) { v.muted = true; var pp = v.play(); if (pp && pp.then) pp.then(function () { v.pause(); }, function () {}); }
