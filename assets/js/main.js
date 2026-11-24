@@ -194,7 +194,7 @@
       p.x = OX + RW * (FZ.u0 + Math.random() * (FZ.u1 - FZ.u0));
       p.y = OY + RH * (FZ.v0 + Math.random() * (FZ.v1 - FZ.v0));
       p.vy = -(20 + Math.random() * 40); p.vx = (Math.random() - .5) * 8;
-      p.r = .6 + Math.random() * 1.4; p.life = fresh ? Math.random() * 2 : 0; p.max = 1.8 + Math.random() * 2.4; p.ph = Math.random() * 6.3; p.hot = Math.random() < .35;
+      p.r = .5 + Math.random() * .9; p.life = fresh ? Math.random() * 2 : 0; p.max = 1.8 + Math.random() * 2.4; p.ph = Math.random() * 6.3; p.hot = Math.random() < .35;
       return p;
     };
     var frame = function (now) {
@@ -204,20 +204,18 @@
       if (fade <= 0) { cx.clearRect(0, 0, W, H); if (shown !== target) raf = requestAnimationFrame(frame); return; }
       var dt = Math.min(.05, last ? (now - last) / 1000 : .016); last = now;
       cx.clearRect(0, 0, W, H);
-      cx.globalCompositeOperation = 'lighter';
       for (var i = 0; i < ps.length; i++) {
         var p = ps[i]; p.life += dt;
         p.x += (p.vx + Math.sin(now / 700 + p.ph) * 10) * dt; p.y += p.vy * dt;
         if (p.life > p.max || p.y < -10) { spawn(p, false); continue; }
         var k = p.life / p.max, a = Math.min(1, p.life * 2) * (1 - k) * (.6 + .4 * Math.sin(now / 90 + p.ph)) * fade;
         if (a <= 0) continue;
-        var g = cx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 4);
-        g.addColorStop(0, p.hot ? 'rgba(255,225,170,' + a + ')' : 'rgba(255,170,90,' + a + ')');
-        g.addColorStop(.35, 'rgba(240,120,50,' + (a * .55) + ')');
-        g.addColorStop(1, 'rgba(200,70,20,0)');
-        cx.fillStyle = g; cx.beginPath(); cx.arc(p.x, p.y, p.r * 4, 0, 6.2832); cx.fill();
+        /* дрібна чітка точка без розмитого ореолу — однаково в Chrome і Safari */
+        cx.globalAlpha = a;
+        cx.fillStyle = p.hot ? '#ffe1aa' : '#ffa45a';
+        cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 6.2832); cx.fill();
       }
-      cx.globalCompositeOperation = 'source-over';
+      cx.globalAlpha = 1;
       raf = requestAnimationFrame(frame);
     };
     var start = function () { if (!raf && on && !d.hidden) { last = 0; raf = requestAnimationFrame(frame); } };
