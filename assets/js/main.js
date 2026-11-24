@@ -179,7 +179,7 @@
   (function () {
     var cv = $('#heroSparks'); if (!cv || reduce || !cv.getContext || !hero) return;
     var cx = cv.getContext('2d'), W = 0, H = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
-    var N = phoneHero ? 30 : 55, ps = [], on = true, last = 0, raf = 0;
+    var N = phoneHero ? 34 : 65, ps = [], on = true, last = 0, raf = 0;
     /* зона вогню в координатах кадру (0..1), далі перераховуємо під object-fit: cover */
     var FZ = phoneHero ? { u0: .5, u1: .98, v0: .5, v1: .9 } : { u0: .57, u1: .88, v0: .45, v1: .85 };
     var RW = 0, RH = 0, OX = 0, OY = 0;
@@ -193,8 +193,8 @@
     var spawn = function (p, fresh) {
       p.x = OX + RW * (FZ.u0 + Math.random() * (FZ.u1 - FZ.u0));
       p.y = OY + RH * (FZ.v0 + Math.random() * (FZ.v1 - FZ.v0));
-      p.vy = -(14 + Math.random() * 22); p.vx = (Math.random() - .5) * 8;
-      p.r = .7 + Math.random() * 1.1; p.life = fresh ? Math.random() * 2 : 0; p.max = 1.3 + Math.random() * 1.7; p.ph = Math.random() * 6.3; p.hot = Math.random() < .35;
+      p.vy = -(16 + Math.random() * 30); p.vx = (Math.random() - .5) * 8;
+      p.r = .8 + Math.random() * 1.2; p.life = fresh ? Math.random() * 2 : 0; p.max = 1.8 + Math.random() * 2.2; p.ph = Math.random() * 6.3; p.hot = Math.random() < .35;
       return p;
     };
     var frame = function (now) {
@@ -210,10 +210,10 @@
         if (p.life > p.max || p.y < -10) { spawn(p, false); continue; }
         var k = p.life / p.max, a = Math.min(1, p.life * 2) * (1 - k) * (.6 + .4 * Math.sin(now / 90 + p.ph)) * fade;
         if (a <= 0) continue;
-        /* дрібна чітка точка без розмитого ореолу — однаково в Chrome і Safari */
-        cx.globalAlpha = a;
+        /* точка з легким сяйвом (без градієнтів — однаково в Chrome і Safari) */
         cx.fillStyle = p.hot ? '#ffe1aa' : '#ffa45a';
-        cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 6.2832); cx.fill();
+        cx.globalAlpha = a * .22; cx.beginPath(); cx.arc(p.x, p.y, p.r * 2.6, 0, 6.2832); cx.fill();
+        cx.globalAlpha = a; cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 6.2832); cx.fill();
       }
       cx.globalAlpha = 1;
       raf = requestAnimationFrame(frame);
