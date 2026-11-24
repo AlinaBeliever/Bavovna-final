@@ -447,7 +447,7 @@
         })
         .catch(function () {
           btn.disabled = false;
-          finish('<h3>Не вдалося надіслати</h3><p>Зателефонуйте нам: ' + tel + ' або напишіть на bavovna.rest@gmail.com.</p>');
+          finish('<h3>Це прототип сайту</h3><p>Форма бронювання поки не підключена. Зателефонуйте нам: ' + tel + ' або напишіть на bavovna.rest@gmail.com.</p>');
         });
     });
   }
