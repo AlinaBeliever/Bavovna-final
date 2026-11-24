@@ -96,7 +96,7 @@
   function initHeroVideo() {
     if (!heroVid || !desk.matches || reduce || heroVid.dataset.ready) return;
     heroVid.dataset.ready = '1';
-    var src = d.createElement('source'); var phone = window.matchMedia && matchMedia('(max-width: 820px)').matches; src.src = ROOT + 'assets/video/' + (phone ? 'hero-scrub-720.mp4' : 'hero-scrub.mp4'); src.type = 'video/mp4';
+    var src = d.createElement('source'); var phone = window.matchMedia && matchMedia('(max-width: 820px)').matches; src.src = ROOT + 'assets/video/' + (phone ? 'hero-scrub-720.mp4' : 'hero-scrub.mp4') + '?v=2'; src.type = 'video/mp4';
     heroVid.appendChild(src); heroVid.preload = 'auto'; heroVid.load();
   }
   initHeroVideo();
