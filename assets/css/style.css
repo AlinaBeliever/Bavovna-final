@@ -132,7 +132,8 @@ h1, h2, h3, p, figure, dl, dd { margin: 0; }
 }
 .hdr.is-solid { background: rgba(10, 26, 21, .82); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); border-color: var(--line); }
 .hdr__in { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 24px; }
-.brand { display: inline-flex; align-items: center; gap: 12px; justify-self: center; grid-column: 2; grid-row: 1; }
+.hdr__in { position: relative; }
+.brand { display: inline-flex; align-items: center; gap: 12px; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
 .brand img { width: auto; height: 46px; }
 .nav { display: flex; gap: clamp(18px, 2.2vw, 36px); grid-column: 1; grid-row: 1; justify-self: start; }
 .nav a { font-size: .98rem; color: var(--cotton-dim); position: relative; padding-block: 6px; transition: color .3s; }
@@ -425,7 +426,6 @@ h1, h2, h3, p, figure, dl, dd { margin: 0; }
   .hero__in { padding-bottom: 110px; }
   .hdr__r .btn { display: none; }
   .hdr__in { grid-template-columns: 44px 1fr 44px; }
-  .brand { grid-column: 2; justify-self: center; }
   .hdr__r { grid-column: 3; grid-row: 1; }
   .events__next .mono--ochre { font-size: .66rem; letter-spacing: .02em; white-space: nowrap; }
   .ftr__row { font-size: .6rem; letter-spacing: .02em; }
@@ -590,7 +590,9 @@ html.lenis, html.lenis body { height: auto; }
 
 /* ---------- завантажувальний екран ---------- */
 .loader { position: fixed; inset: 0; z-index: 1000; display: none; place-items: center; background: var(--night); }
-.js.loading .loader, .js .loader.is-open { display: grid; }
+.js.loading .loader, .js .loader.is-open, .js .loader.is-fly { display: grid; }
+.loader.is-fly { background: transparent; pointer-events: none; }
+.loader.is-fly::before { opacity: 0; transition: opacity .9s ease .15s; }
 .loader.is-open { background: transparent; pointer-events: none; animation: loaderOpen 1.8s linear forwards; }
 .loader__mark { width: clamp(84px, 14vw, 140px); height: auto; opacity: 0; filter: brightness(.6) drop-shadow(0 0 0 rgba(222, 122, 60, 0)); animation: spark 1.5s ease-out .15s forwards; position: relative; z-index: 1; }
 .loader.is-open .loader__mark { animation: markBurn 1s ease-in forwards; }

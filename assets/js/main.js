@@ -529,13 +529,29 @@
   (function () {
     var ld = $('#loader'); if (!ld) return;
     var fin = false;
+    var brandImg = $('.brand img'); if (brandImg && root.classList.contains('loading')) brandImg.style.opacity = '0';
     function done() {
       if (fin) return; fin = true;
       root.classList.remove('loading');
-      ld.classList.add('is-open');
       toTop();
       onScroll();
-      setTimeout(function () { ld.remove(); }, 1900);
+      var mark = $('.loader__mark', ld), tgt = $('.brand img');
+      if (mark && tgt && !reduce) {
+        /* лого з центру екрана летить угору й лягає в центр шапки */
+        var a = mark.getBoundingClientRect(), b = tgt.getBoundingClientRect();
+        var dx = (b.left + b.width / 2) - (a.left + a.width / 2), dy = (b.top + b.height / 2) - (a.top + a.height / 2);
+        mark.style.animation = 'none'; mark.style.opacity = '1'; mark.style.filter = 'brightness(1.15) drop-shadow(0 0 14px rgba(222,122,60,.6))';
+        void mark.offsetWidth;
+        ld.classList.add('is-fly');
+        mark.style.transition = 'transform 1.1s cubic-bezier(.65,0,.35,1), filter 1.1s';
+        mark.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + (b.width / a.width) + ')';
+        mark.style.filter = 'none';
+        setTimeout(function () { tgt.style.opacity = ''; ld.remove(); }, 1250);
+      } else {
+        if (tgt) tgt.style.opacity = '';
+        ld.classList.add('is-open');
+        setTimeout(function () { ld.remove(); }, 1900);
+      }
     }
     if (!root.classList.contains('loading')) { ld.remove(); return; }
     var toTop = function () { try { window.scrollTo(0, 0); if (lenis) lenis.scrollTo(0, { immediate: true, force: true }); } catch (e) {} };
