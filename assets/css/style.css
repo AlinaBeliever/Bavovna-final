@@ -221,6 +221,8 @@ h1, h2, h3, p, figure, dl, dd { margin: 0; }
 .slot__name { font-family: var(--f-head); font-weight: 400; line-height: 1.05; letter-spacing: -.01em; font-size: clamp(1.8rem, 2.6vw, 2.6rem); white-space: nowrap; align-self: flex-start; transition: font-size .5s var(--ease); }
 .slot:not(.on) .slot__name { writing-mode: vertical-rl; transform: rotate(180deg); align-self: flex-start; font-size: clamp(1.5rem, 2.15vw, 2.15rem); margin-top: clamp(44px, 4vw, 60px); }
 .slot.on .slot__name { font-size: clamp(2rem, 3.7vw, 3.7rem); }
+/* кирилиця в цьому шрифті візуально більша за латиницю «À la carte», тож відкриті кириличні назви трохи менші, щоб на вигляд були однакові */
+.slot.on .slot__name--cyr { font-size: clamp(1.75rem, 3.2vw, 3.2rem); }
 .slot__body { max-height: 0; opacity: 0; overflow: hidden; transition: opacity .4s, max-height .5s var(--ease); }
 .slot.on .slot__body { max-height: 260px; opacity: 1; transition: opacity .6s .25s, max-height .5s var(--ease); }
 .slot__body p { color: var(--cotton-dim); max-width: 24em; margin-bottom: 22px; }
