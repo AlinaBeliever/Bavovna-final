@@ -532,21 +532,22 @@
     var brandImg = $('.brand img'); if (brandImg && root.classList.contains('loading')) brandImg.style.opacity = '0';
     function done() {
       if (fin) return; fin = true;
+      var mark = $('.loader__mark', ld), tgt = $('.brand img');
+      /* is-fly ставимо ДО зняття .loading, щоб лоадер не зник і координати лого були реальні */
+      if (mark && tgt && !reduce) ld.classList.add('is-fly');
       root.classList.remove('loading');
       toTop();
       onScroll();
-      var mark = $('.loader__mark', ld), tgt = $('.brand img');
       if (mark && tgt && !reduce) {
-        /* лого з центру екрана летить угору й лягає в центр шапки */
+        /* лого з центру екрана плавно летить угору й лягає в центр шапки */
         var a = mark.getBoundingClientRect(), b = tgt.getBoundingClientRect();
         var dx = (b.left + b.width / 2) - (a.left + a.width / 2), dy = (b.top + b.height / 2) - (a.top + a.height / 2);
         mark.style.animation = 'none'; mark.style.opacity = '1'; mark.style.filter = 'brightness(1.15) drop-shadow(0 0 14px rgba(222,122,60,.6))';
         void mark.offsetWidth;
-        ld.classList.add('is-fly');
-        mark.style.transition = 'transform 1.1s cubic-bezier(.65,0,.35,1), filter 1.1s';
+        mark.style.transition = 'transform 1s cubic-bezier(.65,0,.35,1), filter 1s';
         mark.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + (b.width / a.width) + ')';
         mark.style.filter = 'none';
-        setTimeout(function () { tgt.style.opacity = ''; ld.remove(); }, 1250);
+        setTimeout(function () { tgt.style.opacity = ''; ld.remove(); }, 1050);
       } else {
         if (tgt) tgt.style.opacity = '';
         ld.classList.add('is-open');
@@ -558,9 +559,10 @@
     toTop();
     try { sessionStorage.setItem('bv-seen', '1'); } catch (e) {}
     var t0 = Date.now();
-    var go = function () { setTimeout(done, Math.max(0, 1500 - (Date.now() - t0))); };
-    if (d.readyState === 'complete') go(); else window.addEventListener('load', go);
-    setTimeout(done, 4000);
+    /* не чекаємо всіх картинок/відео: досить DOM + коротка іскра лого */
+    var go = function () { setTimeout(done, Math.max(0, 900 - (Date.now() - t0))); };
+    if (d.readyState !== 'loading') go(); else d.addEventListener('DOMContentLoaded', go);
+    setTimeout(done, 1800);
   })();
   /* звук вогнища: вмикається лише за кліком, стан запам'ятовується */
   (function () {
