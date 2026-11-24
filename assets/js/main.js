@@ -1,8 +1,12 @@
 /* Бавовна — ванільний JS: шапка, розріз, маніфест, акти, меню, відео, форма */
-(function () {
+/* на головній з лоадером стилі вантажаться без блокування — запускаємось лише після них (див. bvCss в index.html) */
+(function (boot) {
+  var cs = document.currentScript, c = window.bvCss;
+  if (c && !c.ok) c.q.push(function () { boot(cs); }); else boot(cs);
+})(function (cs) {
   'use strict';
   var d = document, root = d.documentElement;
-  var ROOT = (function () { try { var cs = d.currentScript; return new URL('../../', cs.src).href; } catch (e) { return '/'; } })();
+  var ROOT = (function () { try { return new URL('../../', cs.src).href; } catch (e) { return '/'; } })();
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var $ = function (s, c) { return (c || d).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || d).querySelectorAll(s)); };
@@ -724,7 +728,7 @@
       else window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 88);
     };
     go();
-    window.addEventListener('load', function () { go(); setTimeout(go, 400); });
+    if (d.readyState === 'complete') setTimeout(go, 400); else window.addEventListener('load', function () { go(); setTimeout(go, 400); });
     var stop = function () { window.removeEventListener('wheel', stop); window.removeEventListener('touchstart', stop); go = function () {}; };
     window.addEventListener('wheel', stop, { passive: true, once: true });
     window.addEventListener('touchstart', stop, { passive: true, once: true });
@@ -747,4 +751,4 @@
     d.addEventListener('visibilitychange', function () { if (d.hidden && !a.paused) { a.pause(); set(false); } });
   })();
   /* сторінки без форми ведуть на неї через /?format=... */
-})();
+});
