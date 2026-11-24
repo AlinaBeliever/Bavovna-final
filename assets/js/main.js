@@ -127,7 +127,8 @@
     /* прогрес завантаження віддаємо лоадеру (смужка під лого) */
     var prog = function (v) { try { heroVid.dispatchEvent(new CustomEvent('heroprogress', { detail: v })); } catch (e) {} };
     if (window.fetch && window.URL && URL.createObjectURL) {
-      fetch(url).then(function (r) {
+      var fo = {}; try { fo = { priority: 'high' }; } catch (e) {}
+      fetch(url, fo).then(function (r) {
         if (!r.ok) throw 0;
         var total = +r.headers.get('content-length') || 0;
         if (!r.body || !r.body.getReader || !total) return r.blob();
@@ -143,17 +144,8 @@
       }).then(function (b) { prog(1); attach(URL.createObjectURL(b)); }, function () { attach(url); });
     } else attach(url);
   }
-  /* і телефон, і ноутбук: відео цілком у памʼять під час лоадера */
-  {
-    var heroGo = function () { requestAnimationFrame(function () { requestAnimationFrame(initHeroPhone); }); };
-    var waits = [];
-    var pimg = new Image(); waits.push(new Promise(function (res) { pimg.onload = pimg.onerror = res; pimg.src = ROOT + 'assets/img/' + (phoneHero ? 'hero-poster-m.jpg' : 'hero-poster.jpg'); }));
-    if (d.fonts && d.fonts.ready) waits.push(d.fonts.ready);
-    if (!phoneHero) initHeroPhone();
-    else if (window.Promise) Promise.all(waits).then(heroGo, heroGo); else heroGo();
-    setTimeout(initHeroPhone, 2500);
-    ['touchstart', 'scroll'].forEach(function (ev) { window.addEventListener(ev, initHeroPhone, { passive: true, once: true }); });
-  }
+  /* і телефон, і ноутбук: відео цілком у памʼять під час лоадера, старт одразу (постер і так має preload з високим пріоритетом) */
+  initHeroPhone();
   /* нове перемотування не ставимо, доки браузер не домалював попереднє: інакше seek-и стають у чергу
      і кадр «тупить», особливо при скролі назад (декодер іде від ключового кадру) */
   var seekAt = 0, paintWait = false;
@@ -170,12 +162,27 @@
   }
   if (heroVid) heroVid.addEventListener('seeked', function () { if (paintWait) { paintWait = false; requestAnimationFrame(paintHero); } });
   var forceSeek = false;
+  /* повернення до hero знизу: телефон (особливо iOS) міг вивантажити декодер або й саме відео, поки воно було далеко поза екраном.
+     Якщо медіа скинуте — перепідключаємо той самий blob з памʼяті (без мережі), потім беззвучний play→pause будить декодер, і ставимо потрібний кадр */
+  function wakeHero() {
+    if (!heroVid || !heroVid.dataset.ready || !heroVid.src) return;
+    if (heroVid.readyState < 2 && heroVid.networkState !== 2) { try { heroVid.load(); } catch (e) {} }
+    heroVid.muted = true;
+    try { var pp = heroVid.play(); if (pp && pp.then) pp.then(function () { heroVid.pause(); forceSeek = true; requestAnimationFrame(paintHero); }, function () {}); } catch (e) {}
+    forceSeek = true; onScroll(); shown = target; requestAnimationFrame(paintHero);
+  }
+  if (heroVid) {
+    /* після скидання медіа браузером: нові метадані → одразу правильний кадр */
+    heroVid.addEventListener('emptied', function () { paintWait = false; });
+    window.addEventListener('pageshow', function (e) { if (e.persisted) wakeHero(); });
+    d.addEventListener('visibilitychange', function () { if (!d.hidden && window.scrollY < (hero ? hero.offsetHeight * 1.5 : 0)) wakeHero(); });
+  }
   if (hero && heroVid && window.IntersectionObserver) {
     /* «прогріваємо» декодер заздалегідь — за екран до появи hero, а не в момент, коли він уже видимий */
     var heroSeen = true;
     new IntersectionObserver(function (es) {
       es.forEach(function (e) {
-        if (e.isIntersecting && !heroSeen) { forceSeek = true; onScroll(); shown = target; requestAnimationFrame(paintHero); }
+        if (e.isIntersecting && !heroSeen) wakeHero();
         heroSeen = e.isIntersecting;
       });
     }, { threshold: 0, rootMargin: '150% 0px 150% 0px' }).observe(hero);
@@ -260,8 +267,8 @@
         if (v.preload !== 'auto') { v.preload = 'auto'; if (v.readyState === 0) v.load(); }
       };
       var go = function () { if (started) return; started = true; step(); };
-      if (heroVid) heroVid.addEventListener('heroready', go);
-      setTimeout(go, 3000);
+      /* лише після готовності hero, щоб не відбирати в нього канал; страхівка — 12 с */
+      if (heroVid && !reduce) { heroVid.addEventListener('heroready', go); setTimeout(go, 12000); } else setTimeout(go, 3000);
     })();
     /* відео з preload="none": починаємо вантажити, коли до них лишається ~1 екран */
     var pio = new IntersectionObserver(function (es) {
@@ -292,11 +299,10 @@
       always.forEach(function (v) { v.addEventListener('pause', function () { if (!d.hidden && !v.ended) setTimeout(kick, 200); }); });
     }
 
-    /* карта Google: вантажимо заздалегідь, ще до підходу до секції */
+    /* карта Google: вантажимо лише на підході до секції (~2 екрани), щоб не забирала канал у hero-відео */
     $$('iframe[data-src]').forEach(function (f) {
       var go = function () { if (!f.src) f.src = f.getAttribute('data-src'); };
-      new IntersectionObserver(function (es, o) { if (es[0].isIntersecting) { go(); o.disconnect(); } }, { rootMargin: '2500px 0px' }).observe(f);
-      window.addEventListener('load', function () { setTimeout(go, 2500); });
+      new IntersectionObserver(function (es, o) { if (es[0].isIntersecting) { go(); o.disconnect(); } }, { rootMargin: '1500px 0px' }).observe(f);
     });
   } else {
     $$('[data-r]').forEach(function (el) { el.classList.add('in'); });
