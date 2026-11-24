@@ -2,6 +2,7 @@
 (function () {
   'use strict';
   var d = document, root = d.documentElement;
+  var ROOT = (function () { try { var cs = d.currentScript; return new URL('../../', cs.src).href; } catch (e) { return '/'; } })();
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var $ = function (s, c) { return (c || d).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || d).querySelectorAll(s)); };
@@ -53,7 +54,7 @@
   function initHeroVideo() {
     if (!heroVid || !desk.matches || reduce || heroVid.dataset.ready) return;
     heroVid.dataset.ready = '1';
-    var src = d.createElement('source'); src.src = '/assets/video/hero-scrub.mp4'; src.type = 'video/mp4';
+    var src = d.createElement('source'); src.src = ROOT + 'assets/video/hero-scrub.mp4'; src.type = 'video/mp4';
     heroVid.appendChild(src); heroVid.preload = 'auto'; heroVid.load();
   }
   initHeroVideo();
@@ -228,7 +229,7 @@
     items.forEach(function (li) {
       var im = d.createElement('img');
       var name = $('h3', li).textContent;
-      im.src = li.dataset.img || '/assets/img/interior.webp'; im.alt = name; im.loading = 'lazy'; im.decoding = 'async';
+      im.src = li.dataset.img || ROOT + 'assets/img/interior.webp'; im.alt = name; im.loading = 'lazy'; im.decoding = 'async';
       /* фото без фону «плавають» на сторінці, решта — з м'яко розчиненими краями */
       im.className = im.src.indexOf('/cut/') > -1 ? 'cut' : 'full';
       frames.appendChild(im);
@@ -270,7 +271,7 @@
       price.textContent = c.dataset[kind + 'Price'];
       lbl.textContent = kind === 'online' ? 'Онлайн' : 'Подарункова картка';
       btn.setAttribute('data-format', 'Сертифікат: ' + fmt);
-      btn.href = '/?format=' + encodeURIComponent('Сертифікат: ' + fmt) + '#book';
+      btn.href = ROOT + '?format=' + encodeURIComponent('Сертифікат: ' + fmt) + '#book';
     });
   }
   gtog.forEach(function (b) { b.addEventListener('click', function () { setGift(b.dataset.kind); }); });
