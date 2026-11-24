@@ -224,10 +224,30 @@
         if (e.isIntersecting) { var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); } else { v.pause(); }
       });
     }, { threshold: .25 });
+    /* фоново, по черзі зверху вниз, догружаємо всі відео сайту, щойно готове hero (або через 3 с) — і на телефоні */
+    (function bgVideos() {
+      var saveData = false;
+      try { var c = navigator.connection; saveData = !!(c && (c.saveData || /(^|-)2g$/.test(c.effectiveType || ''))); } catch (e) {}
+      if (saveData) return;
+      var list = $$('video').filter(function (v) { return v !== heroVid; }), i = 0, started = false;
+      var step = function () {
+        if (i >= list.length) return;
+        var v = list[i++];
+        if (v.readyState >= 3) { step(); return; }
+        var done = false, evs = ['canplaythrough', 'error'];
+        var nx = function () { if (done) return; done = true; evs.forEach(function (e) { v.removeEventListener(e, nx); }); step(); };
+        evs.forEach(function (e) { v.addEventListener(e, nx); });
+        setTimeout(nx, 6000);
+        if (v.preload !== 'auto') { v.preload = 'auto'; if (v.readyState === 0) v.load(); }
+      };
+      var go = function () { if (started) return; started = true; step(); };
+      if (heroVid) heroVid.addEventListener('heroready', go);
+      setTimeout(go, 3000);
+    })();
     /* відео з preload="none": починаємо вантажити, коли до них лишається ~1 екран */
     var pio = new IntersectionObserver(function (es) {
       es.forEach(function (e) { if (e.isIntersecting) { var v = e.target; pio.unobserve(v); if (v.preload === 'none') { v.preload = 'auto'; if (v.readyState === 0) v.load(); } } });
-    }, { rootMargin: '100% 0px' });
+    }, { rootMargin: '200% 0px' });
     $$('video[data-lazyplay], video[data-always]').forEach(function (v) { pio.observe(v); });
     $$('video[data-lazyplay]').forEach(function (v) { if (!reduce) vio.observe(v); else { v.removeAttribute('autoplay'); v.pause(); } });
     /* hero і відео нагороди граємо безперервно, без пауз поза вʼюпортом */
@@ -662,7 +682,7 @@
     var saver = false;
     try { var cn = navigator.connection || navigator.mozConnection || navigator.webkitConnection; saver = !!(cn && (cn.saveData || /(^|-)2g$/.test(cn.effectiveType || ''))); } catch (e) {}
     /* герой чекаємо завжди (і на телефоні); решту відео пропускаємо лише при економії трафіку */
-    if (!saver && !narrow) $$('video').forEach(function (v) { if (v !== heroVid) queue.push(v); });
+    /* решту відео вантажить фоновий завантажувач після hero (див. bgVideos) */
     var qi = 0;
     var nextVid = function () {
       if (qi >= queue.length) { vidsOk = true; finish(); return; }
