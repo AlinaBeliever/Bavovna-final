@@ -419,7 +419,7 @@ h1, h2, h3, p, figure, dl, dd { margin: 0; }
   .hero__end .h-xl { font-size: clamp(1.05rem, 4.4vw, 1.4rem); max-width: none; }
   .hero__end .h-xl br { display: inline; }
   .hero__kw { font-size: 1rem; }
-  .hero__media { background-position: 70% 50%; }
+  .hero__media { background-image: url(../img/hero-poster-m.jpg); background-position: 70% 50%; }
   .hero__media video, .hero__media img { object-position: 70% 50%; }
   .hero__media::after { background: linear-gradient(0deg, var(--night) 0%, rgba(10,26,21,.95) 6%, rgba(10,26,21,.55) 45%, rgba(10,26,21,.25) 100%); }
   .hero__cta { margin-bottom: 0; }

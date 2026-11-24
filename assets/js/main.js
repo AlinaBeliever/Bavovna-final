@@ -99,7 +99,12 @@
     var src = d.createElement('source'); var phone = window.matchMedia && matchMedia('(max-width: 820px)').matches; src.src = ROOT + 'assets/video/' + (phone ? 'hero-scrub-720.mp4' : 'hero-scrub.mp4') + '?v=2'; src.type = 'video/mp4';
     heroVid.appendChild(src); heroVid.preload = 'auto'; heroVid.load();
   }
-  initHeroVideo();
+  /* на телефоні відео-розріз вантажимо лише після load: спершу постер, шрифти й текст першого екрана */
+  if (window.matchMedia && matchMedia('(max-width: 820px)').matches) {
+    var heroLater = function () { setTimeout(initHeroVideo, 300); };
+    if (d.readyState === 'complete') heroLater(); else window.addEventListener('load', heroLater, { once: true });
+    ['touchstart', 'scroll'].forEach(function (ev) { window.addEventListener(ev, initHeroVideo, { passive: true, once: true }); });
+  } else initHeroVideo();
   function paintHero() {
     if (!heroVid || !heroVid.duration) return;
     shown += (target - shown) * .25;
@@ -168,14 +173,19 @@
         if (e.isIntersecting) { var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); } else { v.pause(); }
       });
     }, { threshold: .25 });
+    /* відео з preload="none": починаємо вантажити, коли до них лишається ~1 екран */
+    var pio = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { var v = e.target; pio.unobserve(v); if (v.preload === 'none') { v.preload = 'auto'; if (v.readyState === 0) v.load(); } } });
+    }, { rootMargin: '100% 0px' });
+    $$('video[data-lazyplay], video[data-always]').forEach(function (v) { pio.observe(v); });
     $$('video[data-lazyplay]').forEach(function (v) { if (!reduce) vio.observe(v); else { v.removeAttribute('autoplay'); v.pause(); } });
     /* hero і відео нагороди граємо безперервно, без пауз поза вʼюпортом */
     var always = $$('video[data-always]');
     {
-      var kick = function () { always.forEach(function (v) { if (v.paused) { var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); } }); };
+      var kick = function () { always.forEach(function (v) { if (v.paused && v.dataset.near) { var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); } }); };
       always.forEach(function (v) { v.muted = true; v.addEventListener('loadeddata', kick); v.addEventListener('canplay', kick); });
       kick();
-      if (window.IntersectionObserver) { var aio = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) kick(); }); }, { threshold: .1 }); always.forEach(function (v) { aio.observe(v); }); }
+      if (window.IntersectionObserver) { var aio = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.dataset.near = '1'; kick(); } }); }, { threshold: .1 }); always.forEach(function (v) { aio.observe(v); }); }
       ['touchstart', 'touchend', 'click', 'scroll', 'keydown'].forEach(function (ev) { window.addEventListener(ev, kick, { passive: true, once: true }); });
       d.addEventListener('visibilitychange', function () { if (!d.hidden) kick(); });
       /* страхівка від зупинки циклу: якщо відео застигло або завершилось — перезапуск */
@@ -584,11 +594,13 @@
     if (!mk || (mk.complete && mk.naturalWidth)) onLogo();
     else { mk.addEventListener('load', onLogo); mk.addEventListener('error', onLogo); }
     var queue = [];
-    if (heroVid && heroVid.dataset.ready) queue.push(heroVid);
+    var narrow = window.matchMedia && matchMedia('(max-width: 820px)').matches;
+    /* на телефоні лоадер не чекає відео: інакше перший екран зʼявляється на кілька секунд пізніше */
+    if (heroVid && heroVid.dataset.ready && !narrow) queue.push(heroVid);
     var saver = false;
     try { var cn = navigator.connection || navigator.mozConnection || navigator.webkitConnection; saver = !!(cn && (cn.saveData || /(^|-)2g$/.test(cn.effectiveType || ''))); } catch (e) {}
     /* герой чекаємо завжди (і на телефоні); решту відео пропускаємо лише при економії трафіку */
-    var narrow = window.matchMedia && matchMedia('(max-width: 820px)').matches; if (!saver && !narrow) $$('video').forEach(function (v) { if (v !== heroVid) queue.push(v); });
+    if (!saver && !narrow) $$('video').forEach(function (v) { if (v !== heroVid) queue.push(v); });
     var qi = 0;
     var nextVid = function () {
       if (qi >= queue.length) { vidsOk = true; finish(); return; }

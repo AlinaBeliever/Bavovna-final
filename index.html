@@ -20,15 +20,16 @@
 <link rel="canonical" href="https://ДОМЕН/">
 <script>try{history.scrollRestoration='manual'}catch(e){}document.documentElement.className = 'js';try{var n=performance.getEntriesByType('navigation')[0];var dl=location.hash.length>1||/[?&]format=/.test(location.search);if((!dl&&!sessionStorage.getItem('bv-seen')||(n&&n.type==='reload'))&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('loading')}catch(e){}</script>
 <link rel="preload" href="assets/img/logo-mark.png" as="image" fetchpriority="high">
-<link rel="preload" href="assets/img/hero-poster.jpg" as="image" fetchpriority="high">
+<link rel="preload" href="assets/img/hero-poster.jpg" as="image" fetchpriority="high" media="(min-width: 861px)">
+<link rel="preload" href="assets/img/hero-poster-m.jpg" as="image" fetchpriority="high" media="(max-width: 860px)">
 <link rel="preload" href="assets/fonts/brygada-1918-normal-400-600-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/ysabeau-office-normal-300-600-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="icon" href="assets/img/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" sizes="180x180">
 <link rel="stylesheet" href="assets/css/fonts.css">
-<link rel="stylesheet" href="assets/css/style.css?v=2706">
+<link rel="stylesheet" href="assets/css/style.css?v=2707">
 <script src="assets/js/lenis.min.js" defer></script>
-<script src="assets/js/main.js?v=2706" defer></script>
+<script src="assets/js/main.js?v=2707" defer></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -91,7 +92,7 @@
    <div class="hero__stick">
     <div class="hero__media" aria-hidden="true">
       <!-- відео-розріз підключає main.js на всіх пристроях -->
-      <video id="heroVid" muted playsinline preload="none" poster="assets/img/hero-poster.jpg"></video>
+      <video id="heroVid" muted playsinline preload="none"></video>
     </div>
 
     <div class="wrap hero__in">
@@ -181,14 +182,14 @@
     <div class="wrap">
     <div class="pillars__top">
     <article class="pillar pillar--fire" data-r>
-      <div class="pillar__bg" aria-hidden="true"><video muted loop playsinline preload="metadata" data-lazyplay poster="assets/img/chef.webp"><source src="assets/video/kitchen.mp4" type="video/mp4"><source src="assets/video/kitchen.webm" type="video/webm"></video></div>
+      <div class="pillar__bg" aria-hidden="true"><video muted loop playsinline preload="none" data-lazyplay poster="assets/img/chef.webp"><source src="assets/video/kitchen.mp4" type="video/mp4"><source src="assets/video/kitchen.webm" type="video/webm"></video></div>
       <div class="pillar__txt">
         <h3>Відкрита кухня</h3>
         <p>Між вашим столом і грилем немає стіни. Видно кожен рух шефа, кожну іскру й кожну тарілку перед подачею.</p>
       </div>
     </article>
     <article class="pillar pillar--team" data-r style="--d:.12s">
-      <div class="pillar__media"><video muted loop playsinline preload="metadata" data-lazyplay poster="assets/img/team-poster.jpg" width="540" height="960" aria-label="Команда Бавовни на кухні"><source src="assets/video/team.mp4" type="video/mp4"><source src="assets/video/team.webm" type="video/webm"></video></div>
+      <div class="pillar__media"><video muted loop playsinline preload="none" data-lazyplay poster="assets/img/team-poster.jpg" width="540" height="960" aria-label="Команда Бавовни на кухні"><source src="assets/video/team.mp4" type="video/mp4"><source src="assets/video/team.webm" type="video/webm"></video></div>
       <p>Від Скандинавії взяли чистоту смаку, від Японії ферментацію й коджі, від Франції соуси й техніку. А вогонь об'єднує все це в одну мову.</p>
     </article>
     </div>
@@ -196,12 +197,12 @@
     <div class="wrap">
       <div class="pillars__duo">
         <article class="pillar pillar--farm" data-r>
-          <div class="pillar__media"><video muted loop playsinline preload="metadata" data-lazyplay poster="assets/img/farm-poster.jpg" aria-label="Ферментація зеленої смородини"><source src="assets/video/farm.mp4" type="video/mp4"><source src="assets/video/farm.webm" type="video/webm"></video></div>
+          <div class="pillar__media"><video muted loop playsinline preload="none" data-lazyplay poster="assets/img/farm-poster.jpg" aria-label="Ферментація зеленої смородини"><source src="assets/video/farm.mp4" type="video/mp4"><source src="assets/video/farm.webm" type="video/webm"></video></div>
           <h3>Продукти</h3>
           <p>Страви починаються не на кухні, а на фермах і локальних городах. Ми працюємо з локальними виробниками й обираємо продукти за сезоном, коли смак найвиразніший. Так працює наш принцип «від лану до столу».</p>
         </article>
         <article class="pillar pillar--kitchen" data-r style="--d:.12s">
-          <div class="pillar__media"><video muted loop playsinline preload="metadata" data-lazyplay poster="assets/img/macro.webp"><source src="assets/video/fire.mp4" type="video/mp4"><source src="assets/video/fire.webm" type="video/webm"></video></div>
+          <div class="pillar__media"><video muted loop playsinline preload="none" data-lazyplay poster="assets/img/macro.webp"><source src="assets/video/fire.mp4" type="video/mp4"><source src="assets/video/fire.webm" type="video/webm"></video></div>
           <h3>Вогонь</h3>
           <p>Гриль і вогнище розпалюють на світанку й не гасять до закриття. Тут смажать, коптять і обпалюють навіть десерти. Кожна страва знає смак диму.</p>
         </article>
@@ -248,7 +249,7 @@
         <div class="press"><span class="mono mono--sage">Про нас писали</span><span>ELLE</span><span>Harper's Bazaar Україна</span><span>The Village</span><span>TyKyiv</span></div>
       </div>
       <figure class="award__photo" data-r style="--d:.15s">
-        <video autoplay muted loop playsinline preload="auto" poster="assets/img/award.jpg" width="720" height="720" aria-label="Шеф Альона Смірнова радіє з нагородою «Найкращий ресторан авторської кухні 2026»" data-always>
+        <video muted loop playsinline preload="none" poster="assets/img/award.jpg" width="720" height="720" aria-label="Шеф Альона Смірнова радіє з нагородою «Найкращий ресторан авторської кухні 2026»" data-always>
           <source src="assets/video/award.mp4" type="video/mp4">
           <source src="assets/video/award.webm" type="video/webm">
         </video>
@@ -314,7 +315,7 @@
   <!-- ============ ВІДЕО-СТРАВА + БРОНЮВАННЯ ============ -->
   <div class="reveal">
   <section class="dishband" aria-label="Страва від шефа">
-    <video muted loop playsinline preload="metadata" data-lazyplay poster="assets/img/dish-poster.jpg" aria-label="Шеф викладає страву на хвої ялівцю"><source src="assets/video/dish.mp4" type="video/mp4"><source src="assets/video/dish.webm" type="video/webm"></video>
+    <video muted loop playsinline preload="none" data-lazyplay poster="assets/img/dish-poster.jpg" aria-label="Шеф викладає страву на хвої ялівцю"><source src="assets/video/dish.mp4" type="video/mp4"><source src="assets/video/dish.webm" type="video/webm"></video>
   </section>
 
   <section class="sec book reveal__next" id="book" aria-labelledby="bk">
