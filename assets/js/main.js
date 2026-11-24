@@ -203,6 +203,7 @@
       var fade = Math.max(0, 1 - shown / .3); fade *= fade;
       if (fade <= 0) { cx.clearRect(0, 0, W, H); if (shown !== target) raf = requestAnimationFrame(frame); return; }
       var dt = Math.min(.05, last ? (now - last) / 1000 : .016); last = now;
+      if (cv.clientWidth !== W || cv.clientHeight !== H) size(); /* запасний варіант без ResizeObserver */
       cx.clearRect(0, 0, W, H);
       for (var i = 0; i < ps.length; i++) {
         var p = ps[i]; p.life += dt;
@@ -221,6 +222,8 @@
     var start = function () { if (!raf && on && !d.hidden) { last = 0; raf = requestAnimationFrame(frame); } };
     size(); for (var i = 0; i < N; i++) ps.push(spawn({}, true));
     window.addEventListener('resize', size);
+    /* CSS вантажиться асинхронно: якщо canvas поміряли до стилів (300×150), CSS розтягне його і точки стануть великими розмитими колами — перемірюємо при будь-якій зміні розміру */
+    if (window.ResizeObserver) new ResizeObserver(function () { if (cv.clientWidth !== W || cv.clientHeight !== H) size(); }).observe(cv);
     window.addEventListener('scroll', start, { passive: true });
     d.addEventListener('visibilitychange', start);
     if (window.IntersectionObserver) new IntersectionObserver(function (es) { on = es[0].isIntersecting; if (on) start(); }, { threshold: 0 }).observe(hero);
