@@ -540,14 +540,27 @@
       onScroll();
       if (mark && tgt && !reduce) {
         /* лого з центру екрана плавно летить угору й лягає в центр шапки */
-        var a = mark.getBoundingClientRect(), b = tgt.getBoundingClientRect();
-        var dx = (b.left + b.width / 2) - (a.left + a.width / 2), dy = (b.top + b.height / 2) - (a.top + a.height / 2);
-        mark.style.animation = 'none'; mark.style.opacity = '1'; mark.style.filter = 'brightness(1.15) drop-shadow(0 0 14px rgba(222,122,60,.6))';
-        void mark.offsetWidth;
-        mark.style.transition = 'transform 1s cubic-bezier(.65,0,.35,1), filter 1s';
-        mark.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + (b.width / a.width) + ')';
-        mark.style.filter = 'none';
-        setTimeout(function () { tgt.style.opacity = ''; ld.remove(); }, 1050);
+        mark.style.animation = 'none'; mark.style.opacity = '1'; mark.style.transform = 'none';
+        mark.style.filter = 'brightness(1.15) drop-shadow(0 0 14px rgba(222,122,60,.6))';
+        mark.style.willChange = 'transform';
+        var landed = false, land = function () { if (landed) return; landed = true; tgt.style.opacity = ''; ld.remove(); };
+        /* чекаємо 2 кадри, щоб важка робота після зняття .loading (герой, скрол) не з'їла початок польоту */
+        requestAnimationFrame(function () { requestAnimationFrame(function () {
+          var a = mark.getBoundingClientRect(), b = tgt.getBoundingClientRect();
+          var dx = (b.left + b.width / 2) - (a.left + a.width / 2), dy = (b.top + b.height / 2) - (a.top + a.height / 2);
+          var end = 'translate(' + dx + 'px,' + dy + 'px) scale(' + (b.height / a.height) + ')';
+          mark.style.transition = 'filter 1.2s ease';
+          mark.style.filter = 'brightness(1) drop-shadow(0 0 0 rgba(222,122,60,0))';
+          if (mark.animate) {
+            mark.animate([{ transform: 'none' }, { transform: end }],
+              { duration: 1400, easing: 'cubic-bezier(.45,0,.2,1)', fill: 'forwards' }).onfinish = land;
+            setTimeout(land, 1700);
+          } else {
+            mark.style.transition = 'transform 1.4s cubic-bezier(.45,0,.2,1), filter 1.2s ease';
+            mark.style.transform = end;
+            setTimeout(land, 1450);
+          }
+        }); });
       } else {
         if (tgt) tgt.style.opacity = '';
         ld.classList.add('is-open');
