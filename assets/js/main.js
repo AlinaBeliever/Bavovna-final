@@ -588,7 +588,7 @@
     var saver = false;
     try { var cn = navigator.connection || navigator.mozConnection || navigator.webkitConnection; saver = !!(cn && (cn.saveData || /(^|-)2g$/.test(cn.effectiveType || ''))); } catch (e) {}
     /* герой чекаємо завжди (і на телефоні); решту відео пропускаємо лише при економії трафіку */
-    if (!saver) $$('video').forEach(function (v) { if (v !== heroVid) queue.push(v); });
+    var narrow = window.matchMedia && matchMedia('(max-width: 820px)').matches; if (!saver && !narrow) $$('video').forEach(function (v) { if (v !== heroVid) queue.push(v); });
     var qi = 0;
     var nextVid = function () {
       if (qi >= queue.length) { vidsOk = true; finish(); return; }

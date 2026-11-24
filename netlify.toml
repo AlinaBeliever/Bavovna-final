@@ -3,3 +3,9 @@
 
 [functions]
   directory = "netlify/functions"
+
+# Кеш статики: JS/CSS підключені з ?v=, шрифти/картинки/відео — тиждень
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
