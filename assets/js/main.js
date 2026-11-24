@@ -101,7 +101,7 @@
   }
   /* на телефоні відео-розріз вантажимо лише після load: спершу постер, шрифти й текст першого екрана */
   if (window.matchMedia && matchMedia('(max-width: 820px)').matches) {
-    var heroLater = function () { setTimeout(initHeroVideo, 300); };
+    var heroLater = function () { setTimeout(initHeroVideo, 3500); };
     if (d.readyState === 'complete') heroLater(); else window.addEventListener('load', heroLater, { once: true });
     ['touchstart', 'scroll'].forEach(function (ev) { window.addEventListener(ev, initHeroVideo, { passive: true, once: true }); });
   } else initHeroVideo();

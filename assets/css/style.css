@@ -189,6 +189,11 @@ h1, h2, h3, p, figure, dl, dd { margin: 0; }
 .hero__h1 { animation-delay: .3s; animation-duration: 1.4s; }
 .hero__sub { animation-delay: .6s; } .hero__cta { animation-delay: .75s; }
 @keyframes rise { to { opacity: 1; transform: none; } }
+/* на телефоні текст першого екрана видимий одразу (під лоадером), лише виїжджає вгору — інакше LCP чекає на кінець лоадера */
+@media (max-width: 860px) {
+  .hero__h1, .hero__sub, .hero__cta { opacity: 1; animation-name: riseT; }
+}
+@keyframes riseT { to { transform: none; } }
 
 /* ---------- фінал hero: напис на кінці відео ---------- */
 .hero__end { position: absolute; left: 0; right: 0; top: clamp(150px, 25vh, 280px); opacity: 0; pointer-events: none; z-index: 1; }
