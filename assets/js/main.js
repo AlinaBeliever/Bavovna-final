@@ -381,6 +381,7 @@
     [nameEl, phoneEl].forEach(function (el) { el.addEventListener('input', function () { if (el.getAttribute('aria-invalid')) (el === nameEl ? checkName : checkPhone)(); }); });
 
     form.addEventListener('submit', function (e) {
+      if (form.classList.contains('is-proto')) { e.preventDefault(); return; }
       e.preventDefault();
       var ok = [checkDate(), checkName(), checkPhone()].every(Boolean);
       if (ok && !time.value) { setErr(date, 'На сьогодні вільного часу немає, оберіть іншу дату'); ok = false; }
