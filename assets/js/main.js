@@ -145,15 +145,13 @@
   }
   /* і телефон, і ноутбук: відео цілком у памʼять під час лоадера */
   {
-    /* старт не раніше ~1.3 с від відкриття сторінки й після load: відео (сотні КБ) не має завершитись до LCP,
-       інакше симуляція Lighthouse додає його завантаження до LCP на повільній мережі */
-    var heroGo = function () { var now = (window.performance && performance.now) ? performance.now() : 0; setTimeout(initHeroPhone, Math.max(0, 1300 - now)); };
+    var heroGo = function () { requestAnimationFrame(function () { requestAnimationFrame(initHeroPhone); }); };
     var waits = [];
     var pimg = new Image(); waits.push(new Promise(function (res) { pimg.onload = pimg.onerror = res; pimg.src = ROOT + 'assets/img/' + (phoneHero ? 'hero-poster-m.jpg' : 'hero-poster.jpg'); }));
     if (d.fonts && d.fonts.ready) waits.push(d.fonts.ready);
-    waits.push(new Promise(function (res) { if (d.readyState === 'complete') res(); else window.addEventListener('load', res, { once: true }); }));
-    if (window.Promise) Promise.all(waits).then(heroGo, heroGo); else heroGo();
-    setTimeout(initHeroPhone, 3000);
+    if (!phoneHero) initHeroPhone();
+    else if (window.Promise) Promise.all(waits).then(heroGo, heroGo); else heroGo();
+    setTimeout(initHeroPhone, 2500);
     ['touchstart', 'scroll'].forEach(function (ev) { window.addEventListener(ev, initHeroPhone, { passive: true, once: true }); });
   }
   function paintHero() {
