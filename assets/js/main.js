@@ -158,12 +158,21 @@
     if (heroVid.seeking && performance.now() - seekAt < 250) { paintWait = true; return; }
     shown += (target - shown) * .25;
     if (Math.abs(target - shown) < .002) shown = target;
+    /* перший і останній кадр — чіткі фото (постер і hero-last) замість стиснутого кадру відео */
+    if (heroMedia) { heroMedia.classList.toggle('at-start', shown <= .001); heroMedia.classList.toggle('at-end', shown >= .999); }
     var tt = shown * (heroVid.duration - .05);
     /* після повернення в hero браузер міг скинути декодований кадр: мікро-зсув примушує перемалювати кадр, навіть якщо час той самий */
     if (forceSeek) { forceSeek = false; tt = Math.min(heroVid.duration - .02, tt + .002); }
     if (Math.abs(heroVid.currentTime - tt) > .001) { seekAt = performance.now(); heroVid.currentTime = tt; }
     if (shown !== target) requestAnimationFrame(paintHero);
   }
+  /* чіткий останній кадр підвантажуємо після hero-відео, щоб не забирати в нього канал */
+  var heroLast = $('#heroLast');
+  if (heroVid && heroLast) heroVid.addEventListener('heroready', function () {
+    if (heroLast.src) return;
+    heroLast.onload = function () { heroLast.classList.add('ok'); };
+    heroLast.src = ROOT + 'assets/img/' + (phoneHero ? 'hero-last-m.jpg' : 'hero-last.jpg') + '?v=1';
+  });
   if (heroVid) heroVid.addEventListener('seeked', function () { if (paintWait) { paintWait = false; requestAnimationFrame(paintHero); } });
   var forceSeek = false;
   /* повернення до hero знизу: телефон (особливо iOS) міг вивантажити декодер або й саме відео, поки воно було далеко поза екраном.

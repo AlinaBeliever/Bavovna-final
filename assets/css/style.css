@@ -165,6 +165,10 @@ h1, h2, h3, p, figure, dl, dd { margin: 0; }
 .hero__media video, .hero__media img { width: 100%; height: 100%; object-fit: cover; object-position: 62% 50%; }
 #heroVid { opacity: 0; transition: opacity .35s ease; }
 #heroVid.is-on { opacity: 1; }
+/* на самому початку прокрутки видно чіткий постер (фон .hero__media), у самому кінці — чіткий останній кадр */
+.hero__media.at-start #heroVid.is-on { opacity: 0; }
+.hero__media .hero__last { position: absolute; inset: 0; opacity: 0; transition: opacity .35s ease; pointer-events: none; }
+.hero__media.at-end .hero__last.ok { opacity: 1; }
 .hero__media::after {
   content: ''; position: absolute; inset: 0;
   background:
@@ -432,7 +436,7 @@ h1, h2, h3, p, figure, dl, dd { margin: 0; }
   .hero__media::after { background: linear-gradient(0deg, var(--night) 0%, rgba(10,26,21,.95) 6%, rgba(10,26,21,.55) 45%, rgba(10,26,21,.25) 100%); }
   .hero__cta { margin-bottom: 0; }
   .hero__cta .btn { flex: 1 1 100%; }
-  .hero__in { padding-top: calc(var(--hh) + clamp(20px, 5vh, 80px)); padding-bottom: calc(36px + env(safe-area-inset-bottom, 0px)); }
+  .hero__in { padding-top: calc(var(--hh) + clamp(32px, 9vh, 110px)); padding-bottom: calc(36px + env(safe-area-inset-bottom, 0px)); }
   .hdr__r .btn { display: none; }
   .hdr__in { grid-template-columns: 44px 1fr 44px; }
   .hdr__r { grid-column: 3; grid-row: 1; }
