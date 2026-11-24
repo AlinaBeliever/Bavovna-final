@@ -219,8 +219,8 @@ h1, h2, h3, p, figure, dl, dd { margin: 0; }
 .slot__next { margin: -8px 0 18px; }
 .slot:not(.on) .slot__body { visibility: hidden; transition: opacity .4s, max-height .5s var(--ease), visibility 0s .5s; }
 .slot__name { font-family: var(--f-head); font-weight: 400; line-height: 1.05; letter-spacing: -.01em; font-size: clamp(1.8rem, 2.6vw, 2.6rem); white-space: nowrap; align-self: flex-start; transition: font-size .5s var(--ease); }
-.slot:not(.on) .slot__name { writing-mode: vertical-rl; transform: rotate(180deg); align-self: flex-start; font-size: clamp(1.8rem, 2.6vw, 2.6rem); }
-.slot.on .slot__name { font-size: clamp(2.2rem, 4vw, 4rem); }
+.slot:not(.on) .slot__name { writing-mode: vertical-rl; transform: rotate(180deg); align-self: flex-start; font-size: clamp(1.5rem, 2.15vw, 2.15rem); margin-top: clamp(44px, 4vw, 60px); }
+.slot.on .slot__name { font-size: clamp(2rem, 3.7vw, 3.7rem); }
 .slot__body { max-height: 0; opacity: 0; overflow: hidden; transition: opacity .4s, max-height .5s var(--ease); }
 .slot.on .slot__body { max-height: 260px; opacity: 1; transition: opacity .6s .25s, max-height .5s var(--ease); }
 .slot__body p { color: var(--cotton-dim); max-width: 24em; margin-bottom: 22px; }
@@ -447,7 +447,7 @@ h1, h2, h3, p, figure, dl, dd { margin: 0; }
   .slots { flex-direction: column; height: auto; }
   .slot, .slot.on { flex: none; gap: 14px; padding: 22px 20px; cursor: default; }
   .slot + .slot { border-left: 0; border-top: 1px solid var(--line-strong); }
-  .slot:not(.on) .slot__name, .slot.on .slot__name { writing-mode: horizontal-tb; transform: none; font-size: clamp(1.9rem, 8vw, 2.6rem); }
+  .slot:not(.on) .slot__name, .slot.on .slot__name { writing-mode: horizontal-tb; transform: none; font-size: clamp(1.75rem, 7.4vw, 2.4rem); margin-top: 0; }
   .slot__body, .slot.on .slot__body, .slot:not(.on) .slot__body { max-height: none; opacity: 1; visibility: visible; }
   .slot__btn { cursor: default; }
   .pillars__duo { grid-template-columns: 1fr; margin-top: 48px; }
@@ -551,7 +551,7 @@ h1, h2, h3, p, figure, dl, dd { margin: 0; }
 .pillar--team .pillar__media { aspect-ratio: 9 / 16; overflow: hidden; background: var(--surface); margin-bottom: 18px; }
 @media (max-width: 860px) { .pillars__top { grid-template-columns: 1fr; } .pillars__top .pillar--fire { aspect-ratio: 4 / 5; min-height: 0; align-self: stretch; } .pillar--team { max-width: 320px; margin-top: 0; } }
 /* Менші заголовки у блоках меню, à la carte, шефського столу, сертифікатів */
-#menu-vrazhen .h-xl, #carte .h-xl, #events .h-xl, #gift .h-xl, #hr, #pl, #bk { font-size: clamp(1.7rem, 3vw, 2.8rem); }
+#menu-vrazhen .h-xl, #carte .h-xl, #events .h-xl, #gift .h-xl, #hr, #pl, #ch, #bk { font-size: clamp(1.7rem, 3vw, 2.8rem); }
 .pillar--fire h3 { font-size: clamp(1.6rem, 2.4vw, 2.3rem); letter-spacing: -.012em; line-height: 1.04; }
 
 /* Відкрита кухня: текст під відео, а не поверх */
