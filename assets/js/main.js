@@ -607,6 +607,21 @@
     setTimeout(function () { logoOk = vidsOk = true; finish(); }, Math.max(0, CAP - 900 - nowMs()));
     setTimeout(done, Math.max(0, CAP - nowMs()));
   })();
+  /* перехід із підсторінок на /#book: після завантаження макет зсувається (відео, картинки), тому дотискаємо до якоря */
+  (function () {
+    var id = ''; try { id = decodeURIComponent(location.hash.slice(1)); } catch (e) {}
+    if (!id) return;
+    var go = function () {
+      var el = d.getElementById(id); if (!el) return;
+      if (lenis) lenis.scrollTo(el, { offset: -88, immediate: true, force: true });
+      else window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 88);
+    };
+    go();
+    window.addEventListener('load', function () { go(); setTimeout(go, 400); });
+    var stop = function () { window.removeEventListener('wheel', stop); window.removeEventListener('touchstart', stop); go = function () {}; };
+    window.addEventListener('wheel', stop, { passive: true, once: true });
+    window.addEventListener('touchstart', stop, { passive: true, once: true });
+  })();
   /* звук вогнища: вмикається лише за кліком, стан запам'ятовується */
   (function () {
     var b = $('#ambient'), a = $('#fireAudio');
