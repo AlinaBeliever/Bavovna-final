@@ -35,11 +35,11 @@
 var go=function(){if(c.ok)return;c.ok=true;r.classList.remove('css-wait');var q=c.q;c.q=[];for(var i=0;i<q.length;i++)q[i]()};
 window.bvCssOk=function(l){l.media='all';if(++c.n>=2)go()};
 var a=w?' media="print" onload="bvCssOk(this)" onerror="bvCssOk(this)"':'';
-if(w){r.classList.add('css-wait');setTimeout(go,10000);document.write('<link rel="preload" as="style" href="assets/css/style.css?v=2727" fetchpriority="high"><link rel="preload" as="style" href="assets/css/fonts.css" fetchpriority="high">')}
-document.write('<link rel="stylesheet" href="assets/css/fonts.css"'+a+'><link rel="stylesheet" href="assets/css/style.css?v=2727"'+a+'>')})()</script>
-<noscript><link rel="stylesheet" href="assets/css/fonts.css"><link rel="stylesheet" href="assets/css/style.css?v=2727"></noscript>
+if(w){r.classList.add('css-wait');setTimeout(go,10000);document.write('<link rel="preload" as="style" href="assets/css/style.css?v=2728" fetchpriority="high"><link rel="preload" as="style" href="assets/css/fonts.css" fetchpriority="high">')}
+document.write('<link rel="stylesheet" href="assets/css/fonts.css"'+a+'><link rel="stylesheet" href="assets/css/style.css?v=2728"'+a+'>')})()</script>
+<noscript><link rel="stylesheet" href="assets/css/fonts.css"><link rel="stylesheet" href="assets/css/style.css?v=2728"></noscript>
 <script src="assets/js/lenis.min.js" defer></script>
-<script src="assets/js/main.js?v=2724" defer></script>
+<script src="assets/js/main.js?v=2725" defer></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -103,8 +103,10 @@ document.write('<link rel="stylesheet" href="assets/css/fonts.css"'+a+'><link re
     <div class="hero__media" aria-hidden="true">
       <!-- відео-розріз підключає main.js на всіх пристроях -->
       <video id="heroVid" muted playsinline preload="none"></video>
-      <img class="hero__last" id="heroLast" alt="" decoding="async">
+      <img class="hero__still hero__still--first" id="heroFirst" alt="" decoding="async">
+      <img class="hero__still hero__still--last" id="heroLast" alt="" decoding="async">
     </div>
+    <canvas class="hero__sparks" id="heroSparks" aria-hidden="true"></canvas>
 
     <div class="wrap hero__in">
       <h1 class="hero__h1"><span class="hero__title"><img src="assets/img/logo-hero.svg" alt="Бавовна" width="456" height="164" fetchpriority="high" decoding="async"></span><span class="hero__kw">Ресторан авторської кухні на відкритому полум'ї в Києві</span></h1>

@@ -166,13 +166,58 @@
     if (Math.abs(heroVid.currentTime - tt) > .001) { seekAt = performance.now(); heroVid.currentTime = tt; }
     if (shown !== target) requestAnimationFrame(paintHero);
   }
-  /* чіткий останній кадр підвантажуємо після hero-відео, щоб не забирати в нього канал */
-  var heroLast = $('#heroLast');
-  if (heroVid && heroLast) heroVid.addEventListener('heroready', function () {
-    if (heroLast.src) return;
-    heroLast.onload = function () { heroLast.classList.add('ok'); };
-    heroLast.src = ROOT + 'assets/img/' + (phoneHero ? 'hero-last-m.jpg' : 'hero-last.jpg') + '?v=1';
+  /* чіткі фото першого й останнього кадру (ті самі кадри, що й у відео) підвантажуємо після hero-відео, щоб не забирати в нього канал */
+  if (heroVid) heroVid.addEventListener('heroready', function () {
+    [['#heroFirst', 'first'], ['#heroLast', 'last']].forEach(function (x) {
+      var im = $(x[0]); if (!im || im.src) return;
+      im.onload = function () { im.classList.add('ok'); };
+      im.src = ROOT + 'assets/img/hero-' + x[1] + '-hq' + (phoneHero ? '-m' : '') + '.webp?v=1';
+    });
   });
+
+  /* ---------- іскри над hero ---------- */
+  (function () {
+    var cv = $('#heroSparks'); if (!cv || reduce || !cv.getContext || !hero) return;
+    var cx = cv.getContext('2d'), W = 0, H = 0, dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    var N = phoneHero ? 40 : 85, ps = [], on = true, last = 0, raf = 0;
+    var size = function () { W = cv.clientWidth; H = cv.clientHeight; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cx.setTransform(dpr, 0, 0, dpr, 0, 0); };
+    /* народжуються здебільшого над вогнем (права нижня частина кадру) і летять угору */
+    var spawn = function (p, fresh) {
+      var fire = Math.random() < .75;
+      p.x = fire ? W * (.5 + Math.random() * .5) : Math.random() * W;
+      p.y = fresh ? Math.random() * H : H * (.55 + Math.random() * .5);
+      p.vy = -(18 + Math.random() * 46); p.vx = (Math.random() - .5) * 14;
+      p.r = .6 + Math.random() * 1.5; p.life = 0; p.max = 2.5 + Math.random() * 4; p.ph = Math.random() * 6.3; p.hot = Math.random() < .35;
+      return p;
+    };
+    var frame = function (now) {
+      raf = 0; if (!on || d.hidden) return;
+      var dt = Math.min(.05, last ? (now - last) / 1000 : .016); last = now;
+      cx.clearRect(0, 0, W, H);
+      cx.globalCompositeOperation = 'lighter';
+      var fade = 1 - shown * .45;
+      for (var i = 0; i < ps.length; i++) {
+        var p = ps[i]; p.life += dt;
+        p.x += (p.vx + Math.sin(now / 700 + p.ph) * 10) * dt; p.y += p.vy * dt;
+        if (p.life > p.max || p.y < -10) { spawn(p, false); continue; }
+        var k = p.life / p.max, a = Math.min(1, p.life * 2) * (1 - k) * (.6 + .4 * Math.sin(now / 90 + p.ph)) * fade;
+        if (a <= 0) continue;
+        var g = cx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 4);
+        g.addColorStop(0, p.hot ? 'rgba(255,225,170,' + a + ')' : 'rgba(255,170,90,' + a + ')');
+        g.addColorStop(.35, 'rgba(240,120,50,' + (a * .55) + ')');
+        g.addColorStop(1, 'rgba(200,70,20,0)');
+        cx.fillStyle = g; cx.beginPath(); cx.arc(p.x, p.y, p.r * 4, 0, 6.2832); cx.fill();
+      }
+      cx.globalCompositeOperation = 'source-over';
+      raf = requestAnimationFrame(frame);
+    };
+    var start = function () { if (!raf && on && !d.hidden) { last = 0; raf = requestAnimationFrame(frame); } };
+    size(); for (var i = 0; i < N; i++) ps.push(spawn({}, true));
+    window.addEventListener('resize', size);
+    d.addEventListener('visibilitychange', start);
+    if (window.IntersectionObserver) new IntersectionObserver(function (es) { on = es[0].isIntersecting; if (on) start(); }, { threshold: 0 }).observe(hero);
+    start();
+  })();
   if (heroVid) heroVid.addEventListener('seeked', function () { if (paintWait) { paintWait = false; requestAnimationFrame(paintHero); } });
   var forceSeek = false;
   /* повернення до hero знизу: телефон (особливо iOS) міг вивантажити декодер або й саме відео, поки воно було далеко поза екраном.
