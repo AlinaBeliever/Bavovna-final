@@ -661,9 +661,12 @@
     var finish = function () {
       if (!logoOk || !vidsOk || fin) return;
       ld.classList.add('is-ready');
-      setTimeout(done, Math.max(0, 900 - (Date.now() - t0)));
+      /* даємо іскрі лого відіграти (~1 с від появи лого), навіть якщо відео вже готове */
+      setTimeout(done, Math.max(0, 1100 - (Date.now() - tLogo)));
     };
-    var onLogo = function () { if (logoOk) return; logoOk = true; finish(); };
+    /* іскра лого стартує одразу, як завантажилась картинка, а не після відео — інакше під час очікування лого невидиме */
+    var tLogo = Date.now();
+    var onLogo = function () { if (logoOk) return; logoOk = true; tLogo = Date.now(); ld.classList.add('is-logo'); finish(); };
     /* смужка прогресу: реальне завантаження hero-відео, але не повільніше за ліміт часу, щоб завжди дійти до кінця */
     var bar = $('.loader__bar i', ld), dl = 0;
     if (heroVid) heroVid.addEventListener('heroprogress', function (e) { dl = Math.max(dl, +e.detail || 0); });

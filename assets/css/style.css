@@ -431,7 +431,7 @@ h1, h2, h3, p, figure, dl, dd { margin: 0; }
   .hero__media::after { background: linear-gradient(0deg, var(--night) 0%, rgba(10,26,21,.95) 6%, rgba(10,26,21,.55) 45%, rgba(10,26,21,.25) 100%); }
   .hero__cta { margin-bottom: 0; }
   .hero__cta .btn { flex: 1 1 100%; }
-  .hero__in { padding-bottom: 110px; }
+  .hero__in { padding-bottom: calc(36px + env(safe-area-inset-bottom, 0px)); }
   .hdr__r .btn { display: none; }
   .hdr__in { grid-template-columns: 44px 1fr 44px; }
   .hdr__r { grid-column: 3; grid-row: 1; }
@@ -605,7 +605,13 @@ html.lenis, html.lenis body { height: auto; }
 .loader__mark { width: clamp(84px, 14vw, 140px); height: auto; opacity: 0; filter: brightness(.6) drop-shadow(0 0 0 rgba(222, 122, 60, 0)); animation: spark .8s ease-out .05s forwards; position: relative; z-index: 1; }
 .loader.is-open .loader__mark { animation: markBurn 1s ease-in forwards; }
 /* іскра лого стартує лише коли картинка вже завантажена */
-.js.loading .loader:not(.is-ready) .loader__mark { animation-play-state: paused; }
+.js.loading .loader:not(.is-logo) .loader__mark { animation-play-state: paused; }
+/* поки чекаємо відео — лого «дихає» жаром */
+.js.loading .loader.is-logo .loader__mark { animation: spark .8s ease-out .05s forwards, ember 1.4s ease-in-out .85s infinite alternate; }
+@keyframes ember {
+  from { opacity: 1; transform: scale(1); filter: brightness(1.15) drop-shadow(0 0 14px rgba(222, 122, 60, .6)); }
+  to { opacity: 1; transform: scale(1.03); filter: brightness(1.4) drop-shadow(0 0 26px rgba(240, 140, 70, .9)); }
+}
 .loader::before { content: ''; position: absolute; inset: 0; background: var(--night); z-index: -1; }
 /* смужка завантаження під лого */
 .loader__bar { position: absolute; left: 50%; top: calc(50% + clamp(52px, 7vw, 76px)); width: clamp(96px, 12vw, 140px); height: 2px; margin-left: calc(clamp(96px, 12vw, 140px) / -2);
