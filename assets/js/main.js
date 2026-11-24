@@ -154,25 +154,31 @@
     setTimeout(initHeroPhone, 2500);
     ['touchstart', 'scroll'].forEach(function (ev) { window.addEventListener(ev, initHeroPhone, { passive: true, once: true }); });
   }
+  /* нове перемотування не ставимо, доки браузер не домалював попереднє: інакше seek-и стають у чергу
+     і кадр «тупить», особливо при скролі назад (декодер іде від ключового кадру) */
+  var seekAt = 0, paintWait = false;
   function paintHero() {
     if (!heroVid || !heroVid.duration) return;
+    if (heroVid.seeking && performance.now() - seekAt < 250) { paintWait = true; return; }
     shown += (target - shown) * .25;
     if (Math.abs(target - shown) < .002) shown = target;
     var tt = shown * (heroVid.duration - .05);
     /* після повернення в hero браузер міг скинути декодований кадр: мікро-зсув примушує перемалювати кадр, навіть якщо час той самий */
     if (forceSeek) { forceSeek = false; tt = Math.min(heroVid.duration - .02, tt + .002); }
-    heroVid.currentTime = tt;
+    if (Math.abs(heroVid.currentTime - tt) > .001) { seekAt = performance.now(); heroVid.currentTime = tt; }
     if (shown !== target) requestAnimationFrame(paintHero);
   }
+  if (heroVid) heroVid.addEventListener('seeked', function () { if (paintWait) { paintWait = false; requestAnimationFrame(paintHero); } });
   var forceSeek = false;
   if (hero && heroVid && window.IntersectionObserver) {
+    /* «прогріваємо» декодер заздалегідь — за екран до появи hero, а не в момент, коли він уже видимий */
     var heroSeen = true;
     new IntersectionObserver(function (es) {
       es.forEach(function (e) {
-        if (e.isIntersecting && !heroSeen) { forceSeek = true; shown = target; requestAnimationFrame(function () { onScroll(); paintHero(); }); }
+        if (e.isIntersecting && !heroSeen) { forceSeek = true; onScroll(); shown = target; requestAnimationFrame(paintHero); }
         heroSeen = e.isIntersecting;
       });
-    }, { threshold: 0 }).observe(hero);
+    }, { threshold: 0, rootMargin: '150% 0px 150% 0px' }).observe(hero);
   }
   var words = $$('.manifest__txt .w');
   var manifest = $('[data-words]');
