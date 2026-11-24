@@ -596,6 +596,8 @@ html.lenis, html.lenis body { height: auto; }
 .loader.is-open { background: transparent; pointer-events: none; animation: loaderOpen 1.8s linear forwards; }
 .loader__mark { width: clamp(84px, 14vw, 140px); height: auto; opacity: 0; filter: brightness(.6) drop-shadow(0 0 0 rgba(222, 122, 60, 0)); animation: spark .8s ease-out .05s forwards; position: relative; z-index: 1; }
 .loader.is-open .loader__mark { animation: markBurn 1s ease-in forwards; }
+/* іскра лого стартує лише коли картинка вже завантажена */
+.js.loading .loader:not(.is-ready) .loader__mark { animation-play-state: paused; }
 .loader::before { content: ''; position: absolute; inset: 0; background: var(--night); z-index: -1; }
 .loader.is-open::before { animation: smokeOut 1.5s ease-in .35s forwards; }
 .loader::after { content: ''; position: absolute; left: 50%; top: 50%; width: 60vmax; height: 60vmax; margin: -30vmax 0 0 -30vmax; border-radius: 50%; opacity: 0; z-index: 0; pointer-events: none;

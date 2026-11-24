@@ -571,11 +571,19 @@
     var toTop = function () { try { window.scrollTo(0, 0); if (lenis) lenis.scrollTo(0, { immediate: true, force: true }); } catch (e) {} };
     toTop();
     try { sessionStorage.setItem('bv-seen', '1'); } catch (e) {}
-    var t0 = Date.now();
-    /* не чекаємо всіх картинок/відео: досить DOM + коротка іскра лого */
-    var go = function () { setTimeout(done, Math.max(0, 900 - (Date.now() - t0))); };
-    if (d.readyState !== 'loading') go(); else d.addEventListener('DOMContentLoaded', go);
-    setTimeout(done, 1800);
+    /* не чекаємо всіх картинок/відео: лише саме лого + DOM + коротка іскра лого */
+    var mk = $('.loader__mark', ld), started = false;
+    var start = function () {
+      if (started) return; started = true;
+      ld.classList.add('is-ready');
+      var t0 = Date.now();
+      var go = function () { setTimeout(done, Math.max(0, 900 - (Date.now() - t0))); };
+      if (d.readyState !== 'loading') go(); else d.addEventListener('DOMContentLoaded', go);
+    };
+    if (!mk || (mk.complete && mk.naturalWidth)) start();
+    else { mk.addEventListener('load', start); mk.addEventListener('error', start); }
+    setTimeout(start, 2500);
+    setTimeout(done, 4000);
   })();
   /* звук вогнища: вмикається лише за кліком, стан запам'ятовується */
   (function () {
