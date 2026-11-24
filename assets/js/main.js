@@ -668,7 +668,8 @@
     /* чекаємо відео по черзі: спершу герой, далі решта сайту зверху вниз; лоадер триває не довше 2.5 с від старту сторінки */
     var narrow = window.matchMedia && matchMedia('(max-width: 820px)').matches;
     /* телефон: даємо лоадеру трохи більше часу, щоб відео-розріз встиг завантажитись (на нормальному 4G це ~1 с) */
-    var CAP = 4000, mk = $('.loader__mark', ld), logoOk = false, vidsOk = false, t0 = Date.now();
+    /* лоадер тримаємо, доки hero-відео (і телефон, і ноутбук) не завантажилось цілком; CAP — лише страхівка для дуже повільного інтернету */
+    var CAP = 15000, mk = $('.loader__mark', ld), logoOk = false, vidsOk = false, t0 = Date.now();
     var nowMs = function () { return (window.performance && performance.now) ? performance.now() : 0; };
     var finish = function () {
       if (!logoOk || !vidsOk || fin) return;

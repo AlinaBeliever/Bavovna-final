@@ -462,7 +462,11 @@ h1, h2, h3, p, figure, dl, dd { margin: 0; }
   .sd { padding-inline: 4px; }
   .tabs { overflow-x: auto; flex-wrap: nowrap; }
   .tab { white-space: nowrap; }
-  .form { grid-template-columns: 1fr; padding: 24px 18px; }
+  .form { grid-template-columns: 1fr 1fr; gap: 18px 12px; padding: 24px 18px; }
+  .form .field input, .form .field select { padding: 14px 12px; height: 54px; }
+  .form .field select { padding-right: 32px; background-position: right 12px center; }
+  .form .field input[type="date"]::-webkit-date-and-time-value { text-align: left; }
+  .form .field label, .form .field .lbl { font-size: 12px; letter-spacing: .08em; }
   .visit__grid { grid-template-columns: 1fr; }
   .dock { display: none !important; }
   .ftr { padding-bottom: 84px; }
@@ -595,56 +599,7 @@ html.lenis, html.lenis body { height: auto; }
 @keyframes flick { from { height: 4px; } to { height: 14px; } }
 @media (max-width: 860px) { .ambient { bottom: 84px; padding: 0; width: 44px; justify-content: center; } .ambient__t { display: none; } }
 
-/* ---------- завантажувальний екран ---------- */
-.loader { position: fixed; inset: 0; z-index: 1000; display: none; place-items: center; background: var(--night); }
-.js.loading .loader, .js .loader.is-open, .js .loader.is-fly { display: grid; }
-.loader.is-fly { background: transparent; pointer-events: none; }
-.loader.is-fly::before { opacity: 0; transition: opacity .9s ease .15s; }
-.loader.is-open { background: transparent; pointer-events: none; animation: loaderOpen 1.8s linear forwards; }
-.loader__mark { width: clamp(84px, 14vw, 140px); height: auto; opacity: 0; filter: brightness(.6) drop-shadow(0 0 0 rgba(222, 122, 60, 0)); animation: spark .8s ease-out .05s forwards; position: relative; z-index: 1; }
-.loader.is-open .loader__mark { animation: markBurn 1s ease-in forwards; }
-/* іскра лого стартує лише коли картинка вже завантажена */
-.js.loading .loader:not(.is-logo) .loader__mark { animation-play-state: paused; }
-/* поки чекаємо відео — лого «дихає» жаром */
-.js.loading .loader.is-logo .loader__mark { animation: spark .8s ease-out .05s forwards, ember 1.4s ease-in-out .85s infinite alternate; }
-@keyframes ember {
-  from { opacity: 1; transform: scale(1); filter: brightness(1.15) drop-shadow(0 0 14px rgba(222, 122, 60, .6)); }
-  to { opacity: 1; transform: scale(1.03); filter: brightness(1.4) drop-shadow(0 0 26px rgba(240, 140, 70, .9)); }
-}
-.loader::before { content: ''; position: absolute; inset: 0; background: var(--night); z-index: -1; }
-/* смужка завантаження під лого */
-.loader__bar { position: absolute; left: 50%; top: calc(50% + clamp(52px, 7vw, 76px)); width: clamp(96px, 12vw, 140px); height: 2px; margin-left: calc(clamp(96px, 12vw, 140px) / -2);
-  background: rgba(240, 232, 218, .12); border-radius: 2px; overflow: hidden; z-index: 1; opacity: 0; animation: barIn .4s ease .3s forwards; transition: opacity .35s ease; }
-.loader__bar i { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(222, 122, 60, .6), rgb(240, 150, 80)); transform-origin: 0 50%; transform: scaleX(0); box-shadow: 0 0 10px rgba(240, 140, 70, .7); }
-.loader__bar::after { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 40%; background: linear-gradient(90deg, transparent, rgba(255, 220, 170, .55), transparent); transform: translateX(-100%); animation: barShine 1.2s ease-in-out infinite; will-change: transform; }
-.loader.is-fly .loader__bar, .loader.is-open .loader__bar { opacity: 0 !important; animation: none; }
-@keyframes barIn { to { opacity: 1; } }
-@keyframes barShine { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
-.loader.is-open::before { animation: smokeOut 1.5s ease-in .35s forwards; }
-.loader::after { content: ''; position: absolute; left: 50%; top: 50%; width: 60vmax; height: 60vmax; margin: -30vmax 0 0 -30vmax; border-radius: 50%; opacity: 0; z-index: 0; pointer-events: none;
-  background: radial-gradient(circle, rgba(255, 214, 150, .95) 0, rgba(240, 130, 60, .65) 18%, rgba(120, 50, 30, .35) 40%, rgba(40, 40, 40, 0) 68%); }
-.loader.is-open::after { animation: flare 1.5s ease-out forwards; }
-@keyframes markBurn {
-  0% { opacity: 1; transform: scale(1); filter: brightness(1.15) drop-shadow(0 0 14px rgba(222, 122, 60, .6)); }
-  30% { opacity: 1; transform: scale(1.12); filter: brightness(3) drop-shadow(0 0 40px rgba(255, 170, 90, 1)); }
-  100% { opacity: 0; transform: translateY(-40px) scale(1.5); filter: brightness(.4) blur(14px) drop-shadow(0 0 0 rgba(0, 0, 0, 0)); }
-}
-@keyframes flare {
-  0% { opacity: 0; transform: scale(.2); }
-  25% { opacity: 1; transform: scale(.7); }
-  100% { opacity: 0; transform: translateY(-8vmax) scale(1.6); filter: blur(30px); }
-}
-@keyframes smokeOut {
-  0% { opacity: 1; filter: blur(0); transform: scale(1); }
-  100% { opacity: 0; filter: blur(26px); transform: translateY(-4%) scale(1.12); }
-}
-@keyframes loaderOpen { 0%, 99% { visibility: visible; } 100% { visibility: hidden; } }
-@keyframes spark {
-  0% { opacity: 0; transform: scale(.88); filter: brightness(.6) drop-shadow(0 0 0 rgba(222, 122, 60, 0)); }
-  45% { opacity: 1; filter: brightness(1) drop-shadow(0 0 4px rgba(222, 122, 60, .5)); }
-  70% { opacity: 1; transform: scale(1.04); filter: brightness(1.5) drop-shadow(0 0 28px rgba(222, 122, 60, .95)); }
-  100% { opacity: 1; transform: scale(1); filter: brightness(1.15) drop-shadow(0 0 14px rgba(222, 122, 60, .6)); }
-}
+/* ---------- завантажувальний екран: стилі вбудовані в <head> index.html, щоб лоадер малювався одразу ---------- */
 .js.loading .hero__h1, .js.loading .hero__sub, .js.loading .hero__cta { animation-play-state: paused; }
 
 @media (prefers-reduced-motion: reduce) {
