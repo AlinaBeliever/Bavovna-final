@@ -124,9 +124,23 @@
       /* iOS не декодує кадри без play(): беззвучно запускаємо й одразу ставимо на паузу */
       heroVid.muted = true; var pp = heroVid.play(); if (pp && pp.then) pp.then(function () { heroVid.pause(); }, function () {});
     };
+    /* прогрес завантаження віддаємо лоадеру (смужка під лого) */
+    var prog = function (v) { try { heroVid.dispatchEvent(new CustomEvent('heroprogress', { detail: v })); } catch (e) {} };
     if (window.fetch && window.URL && URL.createObjectURL) {
-      fetch(url).then(function (r) { if (!r.ok) throw 0; return r.blob(); })
-        .then(function (b) { attach(URL.createObjectURL(b)); }, function () { attach(url); });
+      fetch(url).then(function (r) {
+        if (!r.ok) throw 0;
+        var total = +r.headers.get('content-length') || 0;
+        if (!r.body || !r.body.getReader || !total) return r.blob();
+        var rd = r.body.getReader(), parts = [], got = 0;
+        var pump = function () {
+          return rd.read().then(function (x) {
+            if (x.done) return new Blob(parts, { type: 'video/mp4' });
+            parts.push(x.value); got += x.value.length; prog(got / total);
+            return pump();
+          });
+        };
+        return pump();
+      }).then(function (b) { prog(1); attach(URL.createObjectURL(b)); }, function () { attach(url); });
     } else attach(url);
   }
   /* і телефон, і ноутбук: відео цілком у памʼять під час лоадера */
@@ -135,7 +149,8 @@
     var waits = [];
     var pimg = new Image(); waits.push(new Promise(function (res) { pimg.onload = pimg.onerror = res; pimg.src = ROOT + 'assets/img/' + (phoneHero ? 'hero-poster-m.jpg' : 'hero-poster.jpg'); }));
     if (d.fonts && d.fonts.ready) waits.push(d.fonts.ready);
-    if (window.Promise) Promise.all(waits).then(heroGo, heroGo); else heroGo();
+    if (!phoneHero) initHeroPhone();
+    else if (window.Promise) Promise.all(waits).then(heroGo, heroGo); else heroGo();
     setTimeout(initHeroPhone, 2500);
     ['touchstart', 'scroll'].forEach(function (ev) { window.addEventListener(ev, initHeroPhone, { passive: true, once: true }); });
   }
@@ -629,6 +644,16 @@
       setTimeout(done, Math.max(0, 900 - (Date.now() - t0)));
     };
     var onLogo = function () { if (logoOk) return; logoOk = true; finish(); };
+    /* смужка прогресу: реальне завантаження hero-відео, але не повільніше за ліміт часу, щоб завжди дійти до кінця */
+    var bar = $('.loader__bar i', ld), dl = 0;
+    if (heroVid) heroVid.addEventListener('heroprogress', function (e) { dl = Math.max(dl, +e.detail || 0); });
+    if (bar) (function step() {
+      if (fin) return;
+      var v = Math.max(dl, Math.min(1, nowMs() / CAP));
+      if (vidsOk) v = 1;
+      bar.style.transform = 'scaleX(' + v.toFixed(3) + ')';
+      requestAnimationFrame(step);
+    })();
     if (!mk || (mk.complete && mk.naturalWidth)) onLogo();
     else { mk.addEventListener('load', onLogo); mk.addEventListener('error', onLogo); }
     var queue = [];

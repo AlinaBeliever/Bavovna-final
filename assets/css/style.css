@@ -607,6 +607,14 @@ html.lenis, html.lenis body { height: auto; }
 /* іскра лого стартує лише коли картинка вже завантажена */
 .js.loading .loader:not(.is-ready) .loader__mark { animation-play-state: paused; }
 .loader::before { content: ''; position: absolute; inset: 0; background: var(--night); z-index: -1; }
+/* смужка завантаження під лого */
+.loader__bar { position: absolute; left: 50%; top: calc(50% + clamp(52px, 7vw, 76px)); width: clamp(96px, 12vw, 140px); height: 2px; margin-left: calc(clamp(96px, 12vw, 140px) / -2);
+  background: rgba(240, 232, 218, .12); border-radius: 2px; overflow: hidden; z-index: 1; opacity: 0; animation: barIn .4s ease .3s forwards; transition: opacity .35s ease; }
+.loader__bar i { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(222, 122, 60, .6), rgb(240, 150, 80)); transform-origin: 0 50%; transform: scaleX(0); box-shadow: 0 0 10px rgba(240, 140, 70, .7); }
+.loader__bar::after { content: ''; position: absolute; top: 0; bottom: 0; width: 40%; background: linear-gradient(90deg, transparent, rgba(255, 220, 170, .55), transparent); animation: barShine 1.2s ease-in-out infinite; }
+.loader.is-fly .loader__bar, .loader.is-open .loader__bar { opacity: 0 !important; animation: none; }
+@keyframes barIn { to { opacity: 1; } }
+@keyframes barShine { from { left: -40%; } to { left: 100%; } }
 .loader.is-open::before { animation: smokeOut 1.5s ease-in .35s forwards; }
 .loader::after { content: ''; position: absolute; left: 50%; top: 50%; width: 60vmax; height: 60vmax; margin: -30vmax 0 0 -30vmax; border-radius: 50%; opacity: 0; z-index: 0; pointer-events: none;
   background: radial-gradient(circle, rgba(255, 214, 150, .95) 0, rgba(240, 130, 60, .65) 18%, rgba(120, 50, 30, .35) 40%, rgba(40, 40, 40, 0) 68%); }
